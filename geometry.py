@@ -15,11 +15,11 @@ class line:
 
     def __init__(self, a: v3d| list[float] = v3d(0, 0, 0), d: v3d| list[float] = v3d(0, 0, 0)):
         """Anchor : a \nDirection : d  v3d or list of 3"""
-        if type(a) == v3d:
+        if isinstance(a,v3d):
             self.a = a
         else:
             self.a = v3d(*a)
-        if type(d) == v3d:
+        if isinstance(d,v3d):
             self.d = d.unit()
         else:
             self.d = v3d(*d).unit()
@@ -42,15 +42,14 @@ class line:
         """Line from 2 point"""
         return line(a, a-b)
 
-    def pol(self, a: str, n: float) -> v3d:
+    def pol(self, a: Literal["x","y","z"], n: float) -> v3d:
         """Point on Line (axis,coord)"""
         anc: float
         d: float
         anc = getattr(self.a, a)
         d = getattr(self.d, a)
         if d == 0:
-            print(f"Error: d{a}=0")
-            return None
+            raise ValueError
         dt = (n-anc)/d
         return v3d(self.a+self.d*dt)
 
@@ -63,7 +62,7 @@ class line:
         \nVector between point to line"""
         if mag:return v3d((v3d(self.a-b))@self.d).m
         elif not mag:
-            if type(b)!=v3d:
+            if not isinstance(b,v3d):
                 b=v3d(b)
             return v3d(b-v3d(self.a+(self.d*dot(b-self.a,self.d.toList()))))
 
@@ -89,32 +88,32 @@ class line:
         s: float
         m,n,o,p,q,r=self.d.x,self.d.y,self.d.z,a.d.x,a.d.y,a.d.z
         #Finding intersection of line
-        if not(nearZero(det([[m,p],[n,q]]))):#Test for matrix solvability
+        if not(nearZero(det([[m,p],[n,q]]))):# type: ignore #Test for matrix solvability 
             t, s = asolve([
                 [round(m, 9), -round(p, 9)],
                 [round(n, 9), -round(q, 9)]
-            ], [
-                round(a.a.x-self.a.x, 9), round(a.a.y-self.a.y, 9)
+            ], [  # type: ignore
+                round(a.a.x-self.a.x, 9), round(a.a.y-self.a.y, 9)   # type: ignore # type: ignore
             ])
-        elif not(nearZero(det([[o,r],[n,q]]))):#Test for matrix solvability
+        elif not(nearZero(det([[o,r],[n,q]]))):# type: ignore #Test for matrix solvability
             t, s = asolve([
                 [round(o, 9), -round(r, 9)],
                 [round(n, 9), -round(q, 9)]
-            ], [
-                round(a.a.z-self.a.z, 9), round(a.a.y-self.a.y, 9)
+            ], [  # type: ignore
+                round(a.a.z-self.a.z, 9), round(a.a.y-self.a.y, 9)  # type: ignore
             ])
-        elif not(nearZero(det([[o,r],[m,n]]))):#Test for matrix solvability
+        elif not(nearZero(det([[o,r],[m,n]]))):# type: ignore # type: ignore #Test for matrix solvability
             t, s = asolve([
                 [round(o, 9), -round(r, 9)],
                 [round(m, 9), -round(n, 9)]
-            ], [
-                round(a.a.z-self.a.z, 9), round(a.a.x-self.a.x, 9)
+            ], [  # type: ignore
+                round(a.a.z-self.a.z, 9), round(a.a.x-self.a.x, 9)  # type: ignore
             ])
         else:
             print("Some Error")
-        if debug:print(t,s,self.pat(t),a.pat(s))
-        if np.allclose(self.pat(t).rec3d(), a.pat(s).rec3d()):#If third axis is the same 
-            return self.pat(t)
+        if debug:print(t,s,self.pat(t),a.pat(s)) #type:ignore
+        if np.allclose(self.pat(t).rec3d(), a.pat(s).rec3d()):#type:ignore #If third axis is the same 
+            return self.pat(t)#type:ignore
 
         else:
             print("Skewed or Some Error Check code")
@@ -130,11 +129,11 @@ class plane:
 
     def __init__(self, a: v3d| list[float] = v3d(0, 0, 0), n: v3d| list[float] = v3d(0, 0, 0)):
         """a:Anchor \n n:Parallel Normal Vector"""
-        if type(a) == v3d:
+        if isinstance(a,v3d):
             self.a = a
         else:
             self.a = v3d(*a)
-        if type(n) == v3d:
+        if isinstance(n,v3d):
             self.n = n.unit()
         else:
             self.n = v3d(*n).unit()
@@ -167,7 +166,7 @@ class plane:
     def feq(l: float| list[float], b: float, c: float, d: float):
         """From equation"""
         a: float
-        if type(l) == list:
+        if isinstance(l,list):
             a = l[0]
             b = l[1]
             c = l[2]
@@ -205,31 +204,31 @@ class plane:
             print("Parallel")
             return
 
-        if not(nearZero(det([[self.eqx,self.eqy],[b.eqx,b.eqy]]))):#test for unsolvable
+        if not(nearZero(det([[self.eqx,self.eqy],[b.eqx,b.eqy]]))):# type: ignore #test for unsolvable
             x,y=asolve([#Find remaining 2 axis when 1 is fixed
                 [self.eqx,self.eqy],
                 [b.eqx,b.eqy]
-            ],[
+            ],[  # type: ignore
                 -self.eqd,
                 -b.eqd
             ])
             return line([x,y,0],self.n@b.n)
 
-        elif not(nearZero(det([[self.eqx,self.eqz],[b.eqx,b.eqz]]))):
+        elif not(nearZero(det([[self.eqx,self.eqz],[b.eqx,b.eqz]]))):  # type: ignore
             x,z=asolve([
                 [self.eqx,self.eqz],
                 [b.eqx,b.eqz]
-            ],[
+            ],[  # type: ignore
                 -self.eqd,
                 -b.eqd
             ])
             return line([x,0,z],self.n@b.n)
 
-        elif not(nearZero(det([[self.eqy,self.eqz],[b.eqy,b.eqz]]))):
+        elif not(nearZero(det([[self.eqy,self.eqz],[b.eqy,b.eqz]]))):   # type: ignore # type: ignore
             y,z=asolve([
                 [self.eqy,self.eqz],
                 [b.eqy,b.eqz]
-            ],[
+            ],[  # type: ignore
                 -self.eqd,
                 -b.eqd
             ])

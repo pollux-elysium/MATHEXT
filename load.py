@@ -1,60 +1,66 @@
 import numpy as np
+from .typedef import *
 char=str
-def ldi(x: list,i:int=0) ->list[int]: 
+def ldi(x: list[int]|None,i:int=0) ->list[int]: 
     """Load int into list"""
+    if not x:
+        x=[]
     if i:
         for j in range(i):
             n = parse(*[int(j) for j in input().split(",")])
-            x.extend(n)
+            x.extend(n)  # type: ignore
            
     else:
         n = parse(*[int(j) for j in input().split(",")])
         while n:
-            x.extend(n)
+            x.extend(n)  # type: ignore
             n = parse(*[int(j) for j in input().split(",")])
+    return x
 
-
-def ldie(x: list,i:int=0)->list[int]: 
+def ldie(x: list[int]|None,i:int=0)->list[int]: 
     """Load int into list but evaluate"""
+    if not x:x=[]
     if i:
         for j in range(i):
             n = int(eval(input()))
-            x.extend(n)
+            x.extend(n)#type:ignore
     else:
         n = int(eval(input()))
         while n:
-            x.extend(n)
+            x.extend(n)#type:ignore
             n = int(eval(input()))
+    return x
 
 
-def ldf(x: list,i:int=0)->list[float]:
-    """Load float into list"""
+def ldf(x: list[float]|None,i:int=0)->list[float]:
+    if not x:x=[]
     if i:
         for j in range(i):
             n = parse(*[float(j) for j in input().split(",")])
-            x.extend(n)
+            x.extend(n)  # type: ignore
     else:
         n = parse(*[float(j) for j in input().split(",")])
         while n:
-            x.extend(n)
+            x.extend(n)  # type: ignore
             n = parse(*[float(j) for j in input().split(",")])
+    return x
 
-
-def ldfe(x: list,i:int=0)->list[float]:
-    """Load float into list but evaluate"""
+def ldfe(x: list[float]|None,i:int=0)->list[float]:
+    if not x:x=[]
     if i:
         for j in range(i):
             n = float(eval(input()))
-            x.extend(n)
+            x.extend(n)  # type: ignore
     else:
         n = float(eval(input()))
         while n:
-            x.extend(n)
+            x.extend(n)  # type: ignore
             n = float(eval(input()))
+    return x
 
 
-def ldc(x: list,i:int=0)->list[char]:
-    """Load char into list"""
+def ldc(x: list[char]|None,i:int=0)->list[char]:
+    if not x:x=[]
     if i:
         for j in range(i):
             n=input()
@@ -64,10 +70,11 @@ def ldc(x: list,i:int=0)->list[char]:
         while n:
             x.extend(n)
             n = input()
+    return x
 
 
-def ldw(x: list,i:int=0)->list[str]:
-    """Load word into list"""
+def ldw(x: list[str]|None,i:int=0)->list[str]:
+    if not x:x=[]
     if i:
         for j in range(i):
             n=input()
@@ -77,6 +84,7 @@ def ldw(x: list,i:int=0)->list[str]:
         while n:
             x.append(n)
             n = input()
+    return x
 
 
 def lda(x: int, y: int)->np.ndarray:
@@ -89,8 +97,9 @@ def ldae(x: int, y: int)->np.ndarray:
     return np.array([list(map(float, map(eval, input().split(",")))) for i in range(y)])
 
 
-def parse(x=0, f=1):
+def parse(x:T, f) -> list[T] | T:
+    f=int(f)
     if x:
         return [x]*f
     else:
-        return f
+        return x
