@@ -26,7 +26,7 @@ class Mat:
 
     def __sub__(self, new: "Mat"):
         if type(self) is type(new):
-            return Mat(self.a-new.a)
+            return Mat(self.a-new.a)  # type: ignore
         else:
             return Mat(self.a-new)
 
@@ -48,9 +48,6 @@ class Mat:
     def tr(self) -> float:
         "trace"
         return self.a.trace()
-
-    def asolve(self)-> list[number]:
-        return asolve(self.a,self.b)
 
     def inv(self):
         return Mat(inv(self.a))
@@ -97,7 +94,8 @@ class Mat:
 
     def elog(self):
         arr = [self.log2emat(i) for i in self.log[1:]][::-1]
-        return [i for i in filter(lambda a: isinstance(a,Mat),arr) if not((i.a.shape[0] == i.a.shape[1]) and np.allclose(i.a, np.eye(i.a.shape[0])))]
+        fil=[i for i in arr if isinstance(i,Mat)]
+        return [i for i in fil if not((i.a.shape[0] == i.a.shape[1]) and np.allclose(i.a, np.eye(i.a.shape[0])))]
     @staticmethod
     def make(x:int,y:int,eval:bool=False):
         if eval:
@@ -182,7 +180,7 @@ class AugMat(Mat):
     b:list[number]
     log:list[str]=[]
 
-    def __init__(self,a:list[list[number]],b:list[number]):
+    def __init__(self,a:np.ndarray,b:list[number]):
         super().__init__(a)
         self.b=b
 
@@ -225,3 +223,6 @@ class AugMat(Mat):
         super().addr(r1,r2,m)
         self.b[r1]+=self.b[r2]*m
         return self
+
+    def asolve(self):
+        return asolve(self.a,self.b)
