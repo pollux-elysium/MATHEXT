@@ -3,8 +3,7 @@ from .typedef import *
 char=str
 def ldi(x: list[int]|None,i:int=0) ->list[int]: 
     """Load int into list"""
-    if not x:
-        x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n = parse(*[int(j) for j in input().split(",")])
@@ -19,7 +18,7 @@ def ldi(x: list[int]|None,i:int=0) ->list[int]:
 
 def ldie(x: list[int]|None,i:int=0)->list[int]: 
     """Load int into list but evaluate"""
-    if not x:x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n = int(eval(input()))
@@ -33,7 +32,7 @@ def ldie(x: list[int]|None,i:int=0)->list[int]:
 
 
 def ldf(x: list[float]|None,i:int=0)->list[float]:
-    if not x:x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n = parse(*[float(j) for j in input().split(",")])
@@ -46,7 +45,7 @@ def ldf(x: list[float]|None,i:int=0)->list[float]:
     return x
 
 def ldfe(x: list[float]|None,i:int=0)->list[float]:
-    if not x:x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n = float(eval(input()))
@@ -60,7 +59,7 @@ def ldfe(x: list[float]|None,i:int=0)->list[float]:
 
 
 def ldc(x: list[char]|None,i:int=0)->list[char]:
-    if not x:x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n=input()
@@ -74,7 +73,7 @@ def ldc(x: list[char]|None,i:int=0)->list[char]:
 
 
 def ldw(x: list[str]|None,i:int=0)->list[str]:
-    if not x:x=[]
+    if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
             n=input()
@@ -97,7 +96,7 @@ def ldae(x: int, y: int)->np.ndarray:
     return np.array([list(map(float, map(eval, input().split(",")))) for i in range(y)])
 
 
-def parse(x:T, f) -> list[T] | T:
+def parse(x:T, f:number=1) -> list[T] | T:
     f=int(f)
     if x:
         return [x]*f
