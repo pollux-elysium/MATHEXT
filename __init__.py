@@ -16,3 +16,5 @@ from .vec import drec,drec3d,dpol,dpol3d,rec3d,pol3d,v3d
 from .matrix import Mat,AugMat
 from .geometry import line,plane
 from .regression import LinReg,QuadReg,ExpReg,LogReg
+from .combinatorics import binomial
+from .distribution import DiscreteDistribution,UniformDistribution,BinomialDistribution,GeometricDistribution,HypergeometricDistribution
