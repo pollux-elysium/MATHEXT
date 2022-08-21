@@ -23,14 +23,14 @@ class Reg:
             raise ValueError
 
     @staticmethod
-    def make(n:int=0,eval:bool=False):
+    def make(n:int=0,eval:bool=False,env:dict|None=None):
         if eval:
             x:list[number]=[]
             print("Enter x:\n")
-            ldfe(x,n)
+            ldfe(x,n,env)
             fx:list[number]=[]
             print("Enter f(x):\n")
-            ldfe(fx,n)
+            ldfe(fx,n,env)
             return Reg(x,fx)
         else:
             x=[]
@@ -61,8 +61,8 @@ class LinReg(Reg):
         return f"{self.x=}\n{self.fx=}\ny~{self.m}x+{self.c}"
 
     @staticmethod
-    def make(n: int = 0, eval: bool = False):
-        return LinReg(Reg.make(n,eval))
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return LinReg(Reg.make(n,eval,env))
 
     @staticmethod
     def lot(n:list[tuple[number,number]]):
@@ -94,8 +94,8 @@ class QuadReg(Reg):
         return f"{self.x=}\n{self.fx=}\ny~{self.a}x^2+{self.b}x+{self.c}"
 
     @staticmethod
-    def make(n: int = 0, eval: bool = False):
-        return QuadReg(Reg.make(n,eval))
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return QuadReg(Reg.make(n,eval,env))
 
     @staticmethod
     def lot(n:list[tuple[number,number]]):
@@ -134,8 +134,8 @@ class CubReg(Reg):
         return f"{self.x=}\n{self.fx=}\ny~{self.a}x^3+{self.b}x^2+{self.c}x+{self.d}"
 
     @staticmethod
-    def make(n: int = 0, eval: bool = False):
-        return CubReg(Reg.make(n,eval))
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return CubReg(Reg.make(n,eval,env))
 
     @staticmethod
     def lot(n:list[tuple[number,number]]):
@@ -179,16 +179,12 @@ class ExpReg(Reg):
         return f"{self.x=}\n{self.fx=}\ny~{self.a}e^({self.b}x)"
 
     @staticmethod
-    def make(n: int = 0, eval: bool = False):
-        return ExpReg(Reg.make(n,eval))
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return ExpReg(Reg.make(n,eval,env))
 
     @staticmethod
     def lot(n:list[tuple[number,number]]):
         return ExpReg(Reg.lot(n))
-
-    @property
-    def logx(self):
-        return [log(i) for i in self.x]
 
     @property
     def logfx(self):
@@ -197,18 +193,18 @@ class ExpReg(Reg):
     @property
     def solArray(self):
         return AugMat(
-            np.array([[sum(mul(self.logx,self.logx)),sum(self.logx)],
-            [sum(self.logx),len(self.logx)]]),
-            [sum(mul(self.logx,self.logfx)),sum(self.logfx)]
+            np.array([[sum([i**2 for i in self.x]),sum(self.x)],
+            [sum(self.x),len(self.x)]]),
+            [sum(mul(self.x,self.logfx)),sum(self.logfx)]
         ).asolve()
 
     @property
-    def a(self) -> number:
+    def b(self) -> number:
         return self.solArray[0]
 
     @property
-    def b(self) -> number:
-        return self.solArray[1]
+    def a(self) -> number:
+        return exp(self.solArray[1])
 
     def f(self,x:number):
         return self.a*exp(self.b*x)
@@ -222,27 +218,23 @@ class LogReg(Reg):
         return f"{self.x=}\n{self.fx=}\ny~{self.a}ln(x)+{self.b}"
 
     @staticmethod
-    def make(n: int = 0, eval: bool = False):
-        return LogReg(Reg.make(n,eval))
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return LogReg(Reg.make(n,eval,env))
 
     @staticmethod
     def lot(n:list[tuple[number,number]]):
         return LogReg(Reg.lot(n))
-
+    
     @property
-    def expx(self):
-        return [exp(i) for i in self.x]
-
-    @property
-    def expfx(self):
-        return [exp(i) for i in self.fx]
+    def logx(self):
+        return [log(i) for i in self.x]
 
     @property
     def solArray(self):
         return AugMat(
-            np.array([[sum(mul(self.expx,self.expx)),sum(self.expx)],
-            [sum(self.expx),len(self.expx)]]),
-            [sum(mul(self.expx,self.expfx)),sum(self.expfx)]
+            np.array([[sum([i**2 for i in self.logx]),sum(self.logx)],
+            [sum(self.logx),len(self.logx)]]),
+            [sum(mul(self.logx,self.fx)),sum(self.fx)]
         ).asolve()
 
     @property
