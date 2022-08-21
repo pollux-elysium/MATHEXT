@@ -59,10 +59,12 @@ class line:
 
 
     @overload
+    def dist(self, b: v3d| list[float])->float: ...
+    @overload
     def dist(self, b: v3d|list[float],mag:Literal[True]) -> float: ...
     @overload
     def dist(self, b: v3d|list[float],mag:Literal[False]) -> v3d: ...
-    def dist(self, b: v3d| list[float],mag:bool=True):
+    def dist(self, b: v3d| list[float],mag:bool|None=True):
         """Distance between point to line
         \nVector between point to line"""
         if mag:return v3d((v3d(self.a-b))@self.d).m
