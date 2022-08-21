@@ -175,6 +175,18 @@ class Mat:
     def dotE(self):
         return np.linalg.multi_dot(list(map(lambda a: a.a,self.elog())))
 
+    def det(self):
+        return np.linalg.det(self.dotE())
+
+    def minor(self,r:int,c:int):
+        return Mat(np.delete(np.delete(self.a,r,0),c,1))
+
+    def cofactor(self,r:int,c:int):
+        return (-1)**(r+c)*self.minor(r,c).det()
+
+    def adj(self):
+        return Mat(np.array([[self.cofactor(i,j) for i in range(self.a.shape[0])] for j in range(self.a.shape[1])]).T)
+
 class AugMat(Mat):
     a:np.ndarray
     b:list[number]
