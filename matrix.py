@@ -195,11 +195,11 @@ class AugMat(Mat):
         raise NotImplementedError
 
     @staticmethod
-    def make(x:int,y:int,eval:bool=False):
+    def make(x:int,y:int,eval:bool=False,env:dict|None=None):
         if eval:
             a=ldae(x,y)
             b=[]
-            ldfe(b,y)
+            ldfe(b,y,env)
             return AugMat(a,b)
         else:
             a=lda(x,y)

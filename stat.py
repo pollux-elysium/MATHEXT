@@ -1,4 +1,4 @@
-from typedef import T
+from .typedef import T
 
 
 def percentile(x: list[int|float], p: int):

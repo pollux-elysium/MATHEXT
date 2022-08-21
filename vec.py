@@ -2,7 +2,7 @@ from cmath import rect as rec,phase,pi
 from math import radians as rad,sin,cos,degrees as deg,hypot,atan2,acos
 from typing import Union,Literal, overload
 from numpy import cross,dot
-from typedef import *
+from .typedef import *
 
 def drec(x: float, y: float) -> complex:
     return rec(x, rad(y))
