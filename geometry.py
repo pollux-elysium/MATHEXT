@@ -1,5 +1,5 @@
 from .vec import v3d
-from typing import Literal
+from typing import Literal, overload
 from numpy import dot
 from numpy.linalg import det,solve as asolve
 import numpy as np
@@ -57,6 +57,11 @@ class line:
         """Point at t(var)"""
         return v3d(self.a+self.d*t)
 
+
+    @overload
+    def dist(self, b: v3d|list[float],mag:Literal[True]) -> float: ...
+    @overload
+    def dist(self, b: v3d|list[float],mag:Literal[False]) -> v3d: ...
     def dist(self, b: v3d| list[float],mag:bool=True):
         """Distance between point to line
         \nVector between point to line"""
