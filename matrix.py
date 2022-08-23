@@ -15,7 +15,7 @@ class Mat:
     def __repr__(self):
         string=""
         for i,j in enumerate(self.a):
-            string+=f'{str(list(j))}\n'
+            string+=f'{str(list(map(lambda x: round(x,5),list(j))))}\n'
         return string
 
     def __add__(self, new: "Mat"):
@@ -38,6 +38,13 @@ class Mat:
 
     def __matmul__(self, new: 'Mat') :
         return Mat(self.a@new.a)
+
+    def __pow__(self, power: int):
+        if power==0:
+            return Mat(np.identity(self.a.shape[0]))
+        if power==1:
+            return self
+        return self*self**(power-1)
 
     def __neg__(self):
         return Mat(-self.a)
@@ -175,17 +182,20 @@ class Mat:
     def dotE(self):
         return np.linalg.multi_dot(list(map(lambda a: a.a,self.elog())))
 
-    def det(self):
-        return np.linalg.det(self.dotE())
+    def det(self) -> number:
+        return np.linalg.det(self.a)
 
     def minor(self,r:int,c:int):
         return Mat(np.delete(np.delete(self.a,r,0),c,1))
 
-    def cofactor(self,r:int,c:int):
+    def cofactor(self,r:int,c:int) -> number:
         return (-1)**(r+c)*self.minor(r,c).det()
 
     def adj(self):
-        return Mat(np.array([[self.cofactor(i,j) for i in range(self.a.shape[0])] for j in range(self.a.shape[1])]).T)
+        return Mat(np.array([[self.cofactor(j,i) for i in range(self.a.shape[1])] for j in range(self.a.shape[0])]).T)
+
+    def cofactorMatrix(self):
+        return Mat(np.array([[self.cofactor(j,i) for i in range(self.a.shape[1])] for j in range(self.a.shape[0])]))
 
 class AugMat(Mat):
     a:np.ndarray
