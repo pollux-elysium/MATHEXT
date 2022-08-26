@@ -18,3 +18,4 @@ from .geometry import line,plane
 from .regression import LinReg,QuadReg,ExpReg,LogReg
 from .combinatorics import binomial
 from .distribution import DiscreteDistribution,UniformDistribution,BinomialDistribution,GeometricDistribution,HypergeometricDistribution
+from .contDistribution import ContinuousDistribution,ContinuousUniformDistribution,NormalDistribution,pZ,DefaultND,x,oo,Zp,binomialZ
