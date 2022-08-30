@@ -248,3 +248,11 @@ class AugMat(Mat):
 
     def asolve(self):
         return asolve(self.a,self.b)
+
+    def detArr(self):
+        o:list[number]=[]
+        for i,j in enumerate(self.b):
+            a=self.a.copy()
+            a[:,i]=np.array(self.b)
+            o.append(np.linalg.det(a))
+        return o
