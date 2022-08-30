@@ -117,6 +117,7 @@ class Mat:
         a[r1]=self.a[r2]
         a[r2]=self.a[r1]
         self.a=a
+        self.log.append(f'Moved {r1} and {r2}')
         return self
 
     def mul(self,r:int,m:number):
