@@ -198,6 +198,12 @@ class Mat:
     def cofactorMatrix(self):
         return Mat(np.array([[self.cofactor(j,i) for i in range(self.a.shape[1])] for j in range(self.a.shape[0])]))
 
+    def eigenVector(self):
+        return np.linalg.eig(self.a)
+
+    def eigenValue(self):
+        return np.linalg.eigvals(self.a)
+
 class AugMat(Mat):
     a:np.ndarray
     b:list[number]
