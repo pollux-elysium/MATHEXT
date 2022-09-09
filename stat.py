@@ -1,4 +1,4 @@
-from load import ldf
+from .load import ldf
 from .typedef import T,number
 import statistics
 
