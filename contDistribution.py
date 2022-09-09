@@ -5,6 +5,7 @@ from .typedef import *
 
 oo=sym.oo
 x = sym.Symbol('x')
+y= sym.Symbol("y")
 
 class ContinuousDistribution:
     
@@ -13,7 +14,7 @@ class ContinuousDistribution:
         self.minimum = minimum
         self.maximum = maximum
         self.expr: sym.Expr = fx
-        self.sumProb = float(sym.integrate(self.expr,(x,self.minimum,self.maximum)))
+        self.sumProb = float(sym.integrate(self.expr,(x,self.minimum,self.maximum)))  # type: ignore
         if not isclose(self.sumProb,1):
             print("Sum of probabilities is not 1")
 
@@ -28,15 +29,15 @@ class ContinuousDistribution:
         return sym.integrate(self.expr,(x,minimum,maximum))
 
     def f(self,y:float) -> float:
-        return self.expr.subs(x,y)
+        return self.expr.subs(x,y)  # type: ignore
 
     @property
     def mean(self) -> float:
-        return sym.integrate(self.expr*x,(x,self.minimum,self.maximum)).__float__()
+        return sym.integrate(self.expr*x,(x,self.minimum,self.maximum)).__float__()  # type: ignore
 
     @property
     def variance(self) -> float:
-        return float(sym.integrate(self.expr*x**2,(x,self.minimum,self.maximum))).__float__() - self.mean**2
+        return sym.integrate(self.expr*x**2,(x,self.minimum,self.maximum)).__float__() - self.mean**2  # type: ignore
 
     @property
     def stdev(self) -> float:
@@ -70,16 +71,13 @@ class NormalDistribution:
     def __init__(self,mean:float,stdev:float):
         self.mu = mean
         self.sigma = stdev
-        self.expr = sym.exp(-((x-self.mu)**2)/(2*self.sigma**2))/(self.sigma*sqrt(2*sym.pi))
-        self.sumProb = float(sym.integrate(self.expr,(x,-sym.oo,sym.oo)))
-        if not isclose(self.sumProb,1):
-            print("Sum of probabilities is not 1")
+        self.expr = sym.exp(-((x-self.mu)**2)/(2*self.sigma**2))/(self.sigma*sqrt(2*sym.pi))  # type: ignore
 
     def __repr__(self):
         return f"{self.expr} with mean {self.mean} and stdev {self.stdev}"
 
     def P(self, minimum: float, maximum: float) -> float:
-        return float(sym.integrate(self.expr,(x,minimum,maximum)))
+        return float(sym.integrate(self.expr,(x,minimum,maximum)))  # type: ignore
 
     @property
     def mean(self) -> float:
@@ -110,3 +108,6 @@ def Zp(p:float)->float:#find z from p
 
 def binomialZ(n:int,p:float,x:number)->float:
     return (x-n*p+.5)/sqrt(n*p*(1-p))
+
+
+    
