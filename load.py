@@ -13,14 +13,14 @@ def ldi(x: list[int]|None,i:int=0) ->list[int]:
     if not isinstance(x,list):x=[]
     if i:
         for j in range(i):
-            n = parse(*[int(j) for j in input().split(",")])
-            x.extend(n) 
-           
+            n = parse(*[int(i)for i in input().split(",")])
+            x.extend(n)
     else:
-        n = parse(*[int(j) for j in input().split(",")])
-        while n:
-            x.extend(n)  
-            n = parse(*[int(j) for j in input().split(",")])
+        inp = input()
+        while inp:
+            n = parse(*[int(i)for i in inp.split(",")])
+            x.extend(n)
+            inp = input()
     return x
 
 def ldie(x: list[int]|None,i:int=0,env:dict|None=None)->list[int]: 
@@ -31,10 +31,11 @@ def ldie(x: list[int]|None,i:int=0,env:dict|None=None)->list[int]:
             n = int(evalEnv(input(),env))
             x.append(n)
     else:
-        n = int(evalEnv(input(),env))
-        while n:
+        inp = input()
+        while inp:
+            n = int(evalEnv(inp,env))
             x.append(n)
-            n = int(evalEnv(input(),env))
+            inp = input()
     return x
 
 
@@ -45,10 +46,11 @@ def ldf(x: list[float]|None,i:int=0)->list[float]:
             n = parse(*[float(j) for j in input().split(",")])
             x.extend(n) 
     else:
-        n = parse(*[float(j) for j in input().split(",")])
-        while n:
-            x.extend(n) 
-            n = parse(*[float(j) for j in input().split(",")])
+        inp = input()
+        while inp:
+            n = parse(*[float(j) for j in inp.split(",")])
+            x.extend(n)
+            inp = input()
     return x
 
 def ldfe(x: list[float]|None,i:int=0,env:dict|None=None)->list[float]:
@@ -58,12 +60,12 @@ def ldfe(x: list[float]|None,i:int=0,env:dict|None=None)->list[float]:
             n = float(evalEnv(input(),env))
             x.append(n)
     else:
-        n = float(evalEnv(input(),env))
-        while n:
+        inp = input()
+        while inp:
+            n = float(evalEnv(inp,env))
             x.append(n)
-            n = float(evalEnv(input(),env))
+            inp = input()
     return x
-
 
 def ldc(x: list[char]|None,i:int=0)->list[char]:
     if not isinstance(x,list):x=[]
