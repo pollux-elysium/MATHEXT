@@ -2,6 +2,8 @@ from math import isclose, sqrt
 from typing import Callable
 import sympy as sym
 from .typedef import *
+from .stat import StatData
+from statistics import NormalDist
 
 oo=sym.oo
 x = sym.Symbol('x')
@@ -71,13 +73,13 @@ class NormalDistribution:
     def __init__(self,mean:float,stdev:float):
         self.mu = mean
         self.sigma = stdev
-        self.expr = sym.exp(-((x-self.mu)**2)/(2*self.sigma**2))/(self.sigma*sqrt(2*sym.pi))  # type: ignore
+        self.dist = NormalDist(mean,stdev)
 
     def __repr__(self):
-        return f"{self.expr} with mean {self.mean} and stdev {self.stdev}"
+        return f"Normal distribution with mean {self.mean} and stdev {self.stdev}"
 
     def P(self, minimum: float, maximum: float) -> float:
-        return float(sym.integrate(self.expr,(x,minimum,maximum)))  # type: ignore
+        return self.dist.cdf(maximum)-self.dist.cdf(minimum)
 
     @property
     def mean(self) -> float:
@@ -91,23 +93,37 @@ class NormalDistribution:
     def stdev(self) -> float:
         return self.sigma
 
-    def toZ(self,x:float) -> float:
-        return (x-self.mu)/self.sigma
+    @staticmethod
+    def fromData(data:StatData):
+        return NormalDistribution(data.mean,data.stdev)
 
-    def fromZ(self,z:float) -> float:
-        return z*self.sigma+self.mu
+    def toZ(self,x:float)->float:
+        return (x-self.mean)/self.stdev
+
+    def fromZ(self,z:float)->float:
+        return z*self.stdev+self.mean
+
+    def toP(self,x:float)->float:
+        return self.dist.cdf(x)
+
+    def fromP(self,p:float)->float:
+        return self.dist.inv_cdf(p)
 
 DefaultND = NormalDistribution(0,1)
 
 def pZ(z:float)->float:
-    return float(sym.integrate(sym.exp(-(x**2)/(2))/(sqrt(2*sym.pi)),(x,-sym.oo,z)))  # type: ignore
+    return NormalDist().cdf(z)
 
 def Zp(p:float)->float:#find z from p
-    z=sym.symbols('z')
-    return sym.solve(sym.Eq(sym.integrate(sym.exp(-(x**2)/(2))/(sqrt(2*sym.pi)),(x,-sym.oo,z)),p)) # type: ignore
+    return NormalDist().inv_cdf(p)
 
 def binomialZ(n:int,p:float,x:number)->float:
     return (x-n*p+.5)/sqrt(n*p*(1-p))
 
-
+def confidenceZ(confidence:float)->float:
+    return Zp((1+confidence)/2)
     
+def Tp(k:int,a:float)->float:
+    T=sym.symbols('T')
+    return sym.solve(sym.Eq(sym.integrate((sym.gamma((k+1)/2)/(sym.gamma(k/2)*sqrt(k*sym.pi))/(x**2/k+1)**((k+1)/2)),(x,-sym.oo,T)),a)) # type: ignore
+
