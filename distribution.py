@@ -116,6 +116,10 @@ class JointDiscreteDistribution:
         return sum([x[1]*p for x,p in zip(self.point,self.probabilities)])
 
     @property
+    def muxy(self):
+        return sum([x[0]*x[1]*p for x,p in zip(self.point,self.probabilities)])
+
+    @property
     def varx(self):
         return sum([p*(x[0]-self.mux)**2 for x,p in zip(self.point,self.probabilities)])
 
