@@ -29,7 +29,7 @@ yard = Unit("L","yard","yd",0.9144)
 pound = Unit("M","pound","lbm",.45359237)
 ounce = Unit("M","ounce","oz",.028349523125)
 gram = Unit("M","gram","g",.001)
-ton = Unit("M","metricTon","t",1000)
+ton = Unit("M","metricTon","ton",1000)
 
 #TIME
 minutes = Unit("T","minutes","min",60)

@@ -117,6 +117,7 @@ class Mat:
         a[r1]=self.a[r2]
         a[r2]=self.a[r1]
         self.a=a
+        self.log.append(f'Moved {r1} and {r2}')
         return self
 
     def mul(self,r:int,m:number):
@@ -196,6 +197,12 @@ class Mat:
 
     def cofactorMatrix(self):
         return Mat(np.array([[self.cofactor(j,i) for i in range(self.a.shape[1])] for j in range(self.a.shape[0])]))
+
+    def eigenVector(self):
+        return np.linalg.eig(self.a)
+
+    def eigenValue(self):
+        return np.linalg.eigvals(self.a)
 
 class AugMat(Mat):
     a:np.ndarray

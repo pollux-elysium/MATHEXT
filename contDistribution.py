@@ -2,9 +2,12 @@ from math import isclose, sqrt
 from typing import Callable
 import sympy as sym
 from .typedef import *
+from .stat import StatData
+from statistics import NormalDist
 
 oo=sym.oo
 x = sym.Symbol('x')
+y= sym.Symbol("y")
 
 class ContinuousDistribution:
     
@@ -13,7 +16,7 @@ class ContinuousDistribution:
         self.minimum = minimum
         self.maximum = maximum
         self.expr: sym.Expr = fx
-        self.sumProb = float(sym.integrate(self.expr,(x,self.minimum,self.maximum)))
+        self.sumProb = float(sym.integrate(self.expr,(x,self.minimum,self.maximum)))  # type: ignore
         if not isclose(self.sumProb,1):
             print("Sum of probabilities is not 1")
 
@@ -28,15 +31,15 @@ class ContinuousDistribution:
         return sym.integrate(self.expr,(x,minimum,maximum))
 
     def f(self,y:float) -> float:
-        return self.expr.subs(x,y)
+        return self.expr.subs(x,y)  # type: ignore
 
     @property
     def mean(self) -> float:
-        return sym.integrate(self.expr*x,(x,self.minimum,self.maximum)).__float__()
+        return sym.integrate(self.expr*x,(x,self.minimum,self.maximum)).__float__()  # type: ignore
 
     @property
     def variance(self) -> float:
-        return float(sym.integrate(self.expr*x**2,(x,self.minimum,self.maximum))).__float__() - self.mean**2
+        return sym.integrate(self.expr*x**2,(x,self.minimum,self.maximum)).__float__() - self.mean**2  # type: ignore
 
     @property
     def stdev(self) -> float:
@@ -70,16 +73,13 @@ class NormalDistribution:
     def __init__(self,mean:float,stdev:float):
         self.mu = mean
         self.sigma = stdev
-        self.expr = sym.exp(-((x-self.mu)**2)/(2*self.sigma**2))/(self.sigma*sqrt(2*sym.pi))
-        self.sumProb = float(sym.integrate(self.expr,(x,-sym.oo,sym.oo)))
-        if not isclose(self.sumProb,1):
-            print("Sum of probabilities is not 1")
+        self.dist = NormalDist(mean,stdev)
 
     def __repr__(self):
-        return f"{self.expr} with mean {self.mean} and stdev {self.stdev}"
+        return f"Normal distribution with mean {self.mean} and stdev {self.stdev}"
 
     def P(self, minimum: float, maximum: float) -> float:
-        return float(sym.integrate(self.expr,(x,minimum,maximum)))
+        return self.dist.cdf(maximum)-self.dist.cdf(minimum)
 
     @property
     def mean(self) -> float:
@@ -93,20 +93,37 @@ class NormalDistribution:
     def stdev(self) -> float:
         return self.sigma
 
-    def toZ(self,x:float) -> float:
-        return (x-self.mu)/self.sigma
+    @staticmethod
+    def fromData(data:StatData):
+        return NormalDistribution(data.mean,data.stdev)
 
-    def fromZ(self,z:float) -> float:
-        return z*self.sigma+self.mu
+    def toZ(self,x:float)->float:
+        return (x-self.mean)/self.stdev
+
+    def fromZ(self,z:float)->float:
+        return z*self.stdev+self.mean
+
+    def toP(self,x:float)->float:
+        return self.dist.cdf(x)
+
+    def fromP(self,p:float)->float:
+        return self.dist.inv_cdf(p)
 
 DefaultND = NormalDistribution(0,1)
 
 def pZ(z:float)->float:
-    return float(sym.integrate(sym.exp(-(x**2)/(2))/(sqrt(2*sym.pi)),(x,-sym.oo,z)))  # type: ignore
+    return NormalDist().cdf(z)
 
 def Zp(p:float)->float:#find z from p
-    z=sym.symbols('z')
-    return sym.solve(sym.Eq(sym.integrate(sym.exp(-(x**2)/(2))/(sqrt(2*sym.pi)),(x,-sym.oo,z)),p)) # type: ignore
+    return NormalDist().inv_cdf(p)
 
 def binomialZ(n:int,p:float,x:number)->float:
     return (x-n*p+.5)/sqrt(n*p*(1-p))
+
+def confidenceZ(confidence:float)->float:
+    return Zp((1+confidence)/2)
+    
+def Tp(k:int,a:float)->float:
+    T=sym.symbols('T')
+    return sym.solve(sym.Eq(sym.integrate((sym.gamma((k+1)/2)/(sym.gamma(k/2)*sqrt(k*sym.pi))/(x**2/k+1)**((k+1)/2)),(x,-sym.oo,T)),a)) # type: ignore
+

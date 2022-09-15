@@ -33,8 +33,10 @@ class DiscreteDistribution:
             raise ValueError("Sum of probabilities is not 1")
         return p
 
-    def P(self,func:Callable):
+    def P(self,func:Callable[[number],bool]):
         return sum([p for v, p in zip(self.values, self.probabilities) if func(v)])
+
+    
 
 class UniformDistribution(DiscreteDistribution):
     def __init__(self,n:int, maximum: number, minimum: number = 0):
@@ -98,3 +100,59 @@ class HypergeometricDistribution(DiscreteDistribution):
 
     def __repr__(self):
         return f"Hypergeometric Distribution: {self.n} trials with {self.N} fail and {self.m} successes"
+
+class JointDiscreteDistribution:
+    def __init__(self,point:list[tuple[number,number]],probabilities:list[float]):
+        self.point=point
+        self.probabilities=probabilities
+        self.length=len(point)
+
+    @property
+    def mux(self):
+        return sum([x[0]*p for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def muy(self):
+        return sum([x[1]*p for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def muxy(self):
+        return sum([x[0]*x[1]*p for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def varx(self):
+        return sum([p*(x[0]-self.mux)**2 for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def vary(self):
+        return sum([p*(x[1]-self.muy)**2 for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def stdx(self):
+        return sqrt(self.varx)
+
+    @property
+    def stdy(self):
+        return sqrt(self.vary)
+
+    @property
+    def sumProb(self):
+        p=sum(self.probabilities)
+        if not isclose(p,1):
+            raise ValueError("Sum of probabilities is not 1")
+        return p
+
+    @property
+    def cov(self):
+        return sum([p*(x[0]-self.mux)*(x[1]-self.muy) for x,p in zip(self.point,self.probabilities)])
+
+    @property
+    def corr(self):
+        return self.cov/(self.stdx*self.stdy)
+
+    def P(self,func:Callable[[number,number],bool]):
+        return sum([p for x, p in zip(self.point, self.probabilities) if func(x[0],x[1])])
+
+    @staticmethod
+    def from2dist(dist1:DiscreteDistribution,dist2:DiscreteDistribution):
+        return JointDiscreteDistribution([(x,y) for x in dist1.values for y in dist2.values],[p1*p2 for p1 in dist1.probabilities for p2 in dist2.probabilities])
