@@ -14,8 +14,8 @@ def freq(x: list[T]) -> dict[T, int]:
     
 
 
-def tree(x: list[float|int],sep:int=10):
-    j = undupe([i//sep for i in x])
+def tree(x: list[number],sep:int=10):
+    j= undupe([int(i//sep) for i in x])
     return {i: [k for k in x if k//sep == i]for i in j}
 
 def undupe(x: list[T]) -> list[T]:
@@ -81,4 +81,18 @@ class StatData:
     def __add__(self, other: 'StatData') -> 'StatData':
         return StatData(self.data + other.data)
 
+    def trimMean(self, p: number) -> float:
+        return statistics.mean([i for i in self.data if self.percentile(p) <= i <= self.percentile(100-p)])
+
+    def freq(self) -> dict[number, int]:
+        return freq(self.data)
+
+    def tree(self,sep:int=10) -> dict[int, list[number]]:
+        return tree(self.data,sep)
+
+    @property
+    def sigmaXbar(self) -> float:
+        return self.stdev/(len(self.data)**0.5)
+
+    
     
