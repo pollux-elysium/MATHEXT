@@ -86,7 +86,7 @@ class line:
                     print("Same Line")
                 else:print('Parallel')
             elif not(nearZero(self.d.z)or nearZero(a.d.z)):
-                if np.allclose(self.pol('z',0).rec3d(),a.pol('z',0).rec3d()):#Check position when x=0
+                if np.allclose(self.pol('z',0).rec3d(),a.pol('z',0).rec3d()):#Check position when z=0
                     print("Same Line")
                 else:print('Parallel')
             return
