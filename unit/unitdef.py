@@ -119,7 +119,7 @@ poundForce = CompoundUnit([pound,foot],[sec,sec],"pound force","lbf",4.448221615
 pascal = CompoundUnit([kilogram],[meter,sec,sec],"pascal","Pa",1)
 bar = CompoundUnit([kilogram],[meter,sec,sec],"bar","bar",1e5)
 atm = CompoundUnit([kilogram],[meter,sec,sec],"atmosphere","atm",101325)
-psi = CompoundUnit([pound],[inch,inch],"pound/square inch","psi",6894.757293168)
+psi = CompoundUnit([kilogram],[meter,sec,sec],"pound/square inch","psi",6894.757293168)
 mmHg = CompoundUnit([kilogram],[meter,sec,sec],"millimeter of mercury","mmHg",133.322)
 torr = CompoundUnit([kilogram],[meter,sec,sec],"torr","torr",133.322)
 
