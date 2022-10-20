@@ -185,6 +185,9 @@ class BaseUnit(Dimension):
         offset = (self.offset*self.mul - o.offset*o.mul)/(self.mul*o.mul)
         return CompoundUnit(ret.numerator,ret.denominator,self.name + "/" + o.name,self.symbol+"/"+o.symbol,self.mul/o.mul,offset)  # type: ignore
 
+    def __rmul__(self, o:number) -> "Value":
+        return Value(o,self)
+
 class Unit(BaseUnit):
     mul:number
 
@@ -257,11 +260,17 @@ class Value:
     def __repr__(self) -> str:
         return f"{self.value} {self.unit.symbol}"
 
-    def __mul__(self, o: "Value") -> "Value":
-        return Value(self.value*o.value,self.unit*o.unit)
+    def __mul__(self, o: "Value" | CompoundUnitResolvables) -> "Value":
+        if isinstance(o,Value):
+            return Value(self.value*o.value,self.unit*o.unit)
+        else:
+            return Value(self.value,resolveCompoundUnit(o)*self.unit)
 
-    def __truediv__(self, o: "Value") -> "Value":
-        return Value(self.value/o.value,self.unit/o.unit)
+    def __truediv__(self, o: "Value" | CompoundUnitResolvables) -> "Value":
+        if isinstance(o,Value):
+            return Value(self.value/o.value,self.unit/o.unit)
+        else:
+            return Value(self.value,self.unit/resolveCompoundUnit(o))
 
     def __add__(self, o: "Value") -> "Value":
         if self.unit == o.unit:
@@ -290,6 +299,8 @@ class Value:
             return Value((self.value-self.unit.offset)*self.unit.mul/unit.mul + unit.offset,unit)
         else:
             raise Exception("Unit mismatch")
+
+    to = inUnit
 
 #Sync with unitdef.py
 
