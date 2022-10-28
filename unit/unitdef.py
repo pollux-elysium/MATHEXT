@@ -145,6 +145,9 @@ volt = CompoundUnit([kilogram,meter,meter],[sec,sec,sec,amp],"volt","V",1)
 #Electric Field
 voltPerMeter = CompoundUnit([kilogram,meter],[sec,sec,sec,amp],"volt/meter","V/m",1)
 
+#Chemical.14
+amu = CompoundUnit([kilogram],[],"atomic mass unit","amu",1.66053906660e-27)
+gpm = CompoundUnit([kilogram],[mol],"gram per mole","gpm",1e-3)
 
 
 DefaultCompoundUnit = {
