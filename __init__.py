@@ -11,6 +11,7 @@ from math import degrees as deg, radians as rad, sin, cos, tan, asin, acos, atan
 from .load import ldi,ldie,lda,ldae,ldc,ldf,ldfe
 from .stat import *
 from .listelemop import *
+from .poly import *
 from .degRad import dsin,dcos,dtan
 from .vec import drec,drec3d,dpol,dpol3d,rec3d,pol3d,v3d
 from .matrix import Mat,AugMat

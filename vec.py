@@ -140,7 +140,7 @@ class v3d:
             self.z = -self.z
         return self
 
-    def __iter__(self):
+    def __iter__(self):# used to * unpack
         return iter([self.x,self.y,self.z])
 
     @property
@@ -232,3 +232,9 @@ class v3d:
         if type(v) != v3d:
             v = v3d(*v)
         return deg(acos(dot(self.toList(), v.toList())/self.m/v.m))
+
+    def project(self,v:'v3d'):
+        """Project vector to another vector"""
+        if type(v) != v3d:
+            v = v3d(*v)
+        return v*(self*v/v.m)

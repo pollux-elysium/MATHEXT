@@ -1,6 +1,7 @@
 from .load import ldf
-from .typedef import T,number
+from .typedef import T,number,NDArray
 import statistics
+import numpy as np
 
 def percentile(x: list[int|float], p: number):
     """Return pth percentile of list x"""
@@ -94,5 +95,52 @@ class StatData:
     def sigmaXbar(self) -> float:
         return self.stdev/(len(self.data)**0.5)
 
-    
-    
+class ANOVA:
+    def __init__(self,data :NDArray[np.float32]):
+        self.data = data
+        self.k = len(data)
+        self.n = len(data[0])
+        self.N = self.n*self.k
+        self.sum = np.sum(data)
+        self.sumn = np.sum(data,axis=1)
+        self.sum2 = np.sum(data**2)
+        self.SST = self.sum2-self.sum**2/self.N
+        self.SSTn = sum(self.sumn**2)/self.n-self.sum**2/self.N
+        self.SSE = self.SST-self.SSTn
+        self.MSn = self.SSTn/(self.k-1)
+        self.MSe = self.SSE/(self.k*(self.n-1))
+        self.F = self.MSn/self.MSe
+
+    def __repr__(self):
+        return f"ANOVA({self.data})"
+
+    @property
+    def result(self) -> str:
+        return f"ANOVA Result {self.k=}\n{self.n=}\n{self.N=}\n{self.sum=}\n{self.sumn=}\n{self.sum2=}\n{self.SST=}\n{self.SSTn=}\n{self.SSE=}\n{self.MSn=}\n{self.MSe=}\n{self.F=}"
+
+    @property
+    def fmt(self):
+        return f"ANOVA Result\n{self.SSTn:.2f}\t{self.n-1}\t{self.MSn:.2f}\t{self.F:.2f}\n{self.SSE:.2f}\t{self.k*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
+
+class ANOVABlock(ANOVA):
+    def __init__(self,data :NDArray[np.float32]):
+        super().__init__(data)
+        self.sumk = np.sum(data,axis=0)
+        self.SSTk = sum(self.sumk**2)/self.k-self.sum**2/self.N
+        self.SSE = self.SST-self.SSTn-self.SSTk
+        self.MSk = self.SSTk/(self.n-1)
+        self.MSe = self.SSE/((self.k-1)*(self.n-1))
+        self.F0 = self.MSn/self.MSe
+        self.F1 = self.MSk/self.MSe
+
+
+    def __repr__(self):
+        return f"ANOVABlock({self.data})"
+
+    @property
+    def result(self) -> str:
+        return f"ANOVABlock Result {self.k=}\n{self.n=}\n{self.N=}\n{self.sum=}\n{self.sumn=}\n{self.sum2=}\n{self.SST=}\n{self.SSTn=}\n{self.sumk=}\n{self.SSTk=}\n{self.SSE=}\n{self.MSn=}\n{self.MSk=}\n{self.MSe=}\n{self.F0=}\n{self.F1=}"
+
+    @property
+    def fmt(self):
+        return f"ANOVABlock Result\n{self.SSTn:.2f}\t{self.n-1}\t{self.MSn:.2f}\t{self.F0:.2f}\n{self.SSTk:.2f}\t{self.k-1}\t{self.MSk:.2f}\t{self.F1:.2f}\n{self.SSE:.2f}\t{(self.k-1)*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
