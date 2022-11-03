@@ -3,6 +3,10 @@ from .typedef import T,number,NDArray
 import statistics
 import numpy as np
 
+def lapprox(p1:tuple[number,number],p2:tuple[number,number],x:number)->float:
+    """Return y value of a line approximated by two points"""
+    return (p2[0]-p1[0])/(p2[1]-p1[1])*(x-p1[1])+p1[0]
+
 def percentile(x: list[int|float], p: number):
     """Return pth percentile of list x"""
     x.sort()
