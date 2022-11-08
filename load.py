@@ -99,6 +99,10 @@ def lda(x: int, y: int)->np.ndarray:
     """Load csv(str) into 2d array"""
     return np.array([list(map(float, input().split(","))) for i in range(y)])
 
+def lda3d(i: int, j: int, k: int)->np.ndarray:
+    """Load MATLAB formats into 3d array"""
+    return np.array([[list(map(float,i.split()))for i in input().split(";")]for k in range(i)])
+
 
 def ldae(x: int, y: int,env:dict|None=None)->np.ndarray:
     """Load evaluated csv(str) into 2d array"""
