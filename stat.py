@@ -100,7 +100,7 @@ class StatData:
         return self.stdev/(len(self.data)**0.5)
 
 class ANOVA:
-    def __init__(self,data :NDArray[np.float32]):
+    def __init__(self,data :NDArray[np.float64]):
         self.data = data
         self.k = len(data)
         self.n = len(data[0])
@@ -127,7 +127,7 @@ class ANOVA:
         return f"ANOVA Result\n{self.SSTn:.2f}\t{self.n-1}\t{self.MSn:.2f}\t{self.F:.2f}\n{self.SSE:.2f}\t{self.k*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
 
 class ANOVABlock(ANOVA):
-    def __init__(self,data :NDArray[np.float32]):
+    def __init__(self,data :NDArray[np.float64]):
         super().__init__(data)
         self.sumk = np.sum(data,axis=0)
         self.SSTk = sum(self.sumk**2)/self.k-self.sum**2/self.N
@@ -148,3 +148,42 @@ class ANOVABlock(ANOVA):
     @property
     def fmt(self):
         return f"ANOVABlock Result\n{self.SSTn:.2f}\t{self.k-1}\t{self.MSn:.2f}\t{self.F0:.2f}\n{self.SSTk:.2f}\t{self.n-1}\t{self.MSk:.2f}\t{self.F1:.2f}\n{self.SSE:.2f}\t{(self.k-1)*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
+
+class ANOVA2:
+    def __init__(self,data :NDArray[np.float64]):
+        self.data = data
+        self.process()
+        
+    def process(self):
+        data=self.data
+        self.i=len(data)
+        self.j=len(data[0])
+        self.k=len(data[0][0])
+        self.gsum = np.sum(data)
+        self.sumi = np.sum(data,axis=(1,2))
+        self.sumj = np.sum(data,axis=(0,2))
+        self.sumij = np.sum(data,axis=2)
+        self.SSt = np.sum(data**2)-self.gsum**2/(self.i*self.j*self.k)
+        self.SSa = np.sum(self.sumi**2)/self.j/self.k-self.gsum**2/(self.i*self.j*self.k)
+        self.SSb = np.sum(self.sumj**2)/self.i/self.k-self.gsum**2/(self.i*self.j*self.k)
+        self.SSsub = np.sum(self.sumij**2)/self.k-self.gsum**2/(self.i*self.j*self.k)
+        self.SSab = self.SSsub-self.SSa-self.SSb
+        self.SSe = self.SSt-self.SSa-self.SSb-self.SSab
+        self.MSa = self.SSa/(self.i-1)
+        self.MSb = self.SSb/(self.j-1)
+        self.MSab = self.SSab/(self.i-1)/(self.j-1)
+        self.MSe = self.SSe/(self.i*self.j*(self.k-1))
+        self.Fa = self.MSa/self.MSe
+        self.Fb = self.MSb/self.MSe
+        self.Fab = self.MSab/self.MSe
+
+    def __repr__(self):
+        return f"ANOVA2({self.data})"
+
+    @property
+    def result(self) -> str:
+        return f"ANOVA2 Result {self.i=}\n{self.j=}\n{self.k=}\n{self.gsum=}\n{self.sumi=}\n{self.sumj=}\n{self.sumij=}\n{self.SSt=}\n{self.SSa=}\n{self.SSb=}\n{self.SSsub=}\n{self.SSab=}\n{self.SSe=}\n{self.MSa=}\n{self.MSb=}\n{self.MSab=}\n{self.MSe=}"
+
+    @property
+    def fmt(self):
+        return f"ANOVA2 Result\n{self.SSa:.2f}\t{self.i-1}\t{self.MSa:.2f}\t{self.Fa:.2f}\n{self.SSb:.2f}\t{self.j-1}\t{self.MSb:.2f}\t{self.Fb:.2f}\n{self.SSab:.2f}\t{(self.i-1)*(self.j-1)}\t{self.MSab:.2f}\t{self.Fab:.2f}\n{self.SSe:.2f}\t{(self.i*self.j)*(self.k-1)}\t{self.MSe:.2f}\n{self.SSt:.2f}\t{(self.i-1)*(self.j-1)*(self.k-1)}"
