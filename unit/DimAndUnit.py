@@ -1,7 +1,7 @@
 import sys
 from typing import Literal, Union
 from ..typedef import *
-from ..stat import freq
+from ..stats import freq
 
 BaseDim=Literal["T","L","M","N","I","J","H"]
 DimensionResolvables = Union["Dimension","BaseUnit","Unit",str]

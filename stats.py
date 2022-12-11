@@ -4,38 +4,80 @@ import statistics
 import numpy as np
 
 def lapprox(p1:tuple[number,number],p2:tuple[number,number],x:number)->float:
-    """Return y value of a line approximated by two points"""
+    """Return y value of a line approximated by two points
+
+    Args:
+        p1 (tuple): First point (y,x)
+        p2 (tuple): Second point (y,x)
+        x (number): x value of line
+        
+    Returns:
+        float: y value of line"""
     return (p2[0]-p1[0])/(p2[1]-p1[1])*(x-p1[1])+p1[0]
 
-def percentile(x: list[int|float], p: number):
-    """Return pth percentile of list x"""
+def percentile(x: list[number], p: number):
+    """Return pth percentile of list x
+    
+    Args:
+        x (list): List of numbers
+        p (number): Percentile
+        
+    Returns:
+        float: pth percentile of list x
+    """
     x.sort()
     l = p*(len(x)+1)/100
     return x[int(l) - 1]+(x[int(l)]-x[int(l)-1])*(l % 1)
 
 
 def freq(x: list[T]) -> dict[T, int]:
+    """Return frequency of each item in list x
+
+    Args:
+        x (list): List of items
+
+    Returns:
+        dict: Frequency of each item in list x
+    """
     return {i: x.count(i)for i in undupe(x)}
     
 
 
 def tree(x: list[number],sep:int=10):
+    """Return a tree of the data in list x
+
+    Args:
+        x (list): List of numbers
+        sep (int, optional): Separation between each tree level. Defaults to 10. recommended to be a multiple of 10
+
+    Returns:
+        dict: Tree of the data in list x
+    """
     j= undupe([int(i//sep) for i in x])
     return {i: [k for k in x if k//sep == i]for i in j}
 
 def undupe(x: list[T]) -> list[T]:
+    """Return list with duplicates removed"""
     return list(dict.fromkeys(x))
 
 def iqr(x: list[float|int]) -> float:
+    """Return interquartile range of list x"""
     return percentile(x,75)-percentile(x,25)
 
 
 
 class StatData:
+    """Wrapper for list to be used with statistics module"""
     data:list[number]
     isSample:bool = False
 
     def __init__(self, data: list[number],sample:bool=False):
+        """Initialize StatData
+        
+        Args:
+            data (list): List of numbers
+            sample (bool, optional): Whether data is a sample or population. Defaults to False.
+        """
         self.data = data
         self.isSample = sample
 
@@ -77,30 +119,53 @@ class StatData:
         return percentile(self.data,75)-percentile(self.data,25)
 
     def percentile(self, p: number) -> float:
+        """Percentile of number p"""
         return percentile(self.data, p)
 
     @staticmethod
     def make():
+        """Macro for creating StatData with ldf"""
         return StatData(ldf([]))
 
     def __add__(self, other: 'StatData') -> 'StatData':
         return StatData(self.data + other.data)
 
     def trimMean(self, p: number) -> float:
+        """Return mean of data with p% trimmed off each side"""
         return statistics.mean([i for i in self.data if self.percentile(p) <= i <= self.percentile(100-p)])
 
     def freq(self) -> dict[number, int]:
+        """Frequency of each number in data"""
         return freq(self.data)
 
     def tree(self,sep:int=10) -> dict[int, list[number]]:
+        """Return a tree of the data in list x
+
+    Args:
+        x (list): List of numbers
+        sep (int, optional): Separation between each tree level. Defaults to 10. recommended to be a multiple of 10
+
+    Returns:
+        dict: Tree of the data in list x
+    """
         return tree(self.data,sep)
 
     @property
     def sigmaXbar(self) -> float:
+        """Standard error of the mean"""
         return self.stdev/(len(self.data)**0.5)
 
 class ANOVA:
+    """ANOVA class for one-way ANOVA"""
     def __init__(self,data :NDArray[np.float64]):
+        """Initialize ANOVA
+
+        Args:
+            data (NDArray): 2D array of data
+
+        Raises:
+            ValueError: If data is not 2D
+        """
         self.data = data
         self.k = len(data)
         self.n = len(data[0])
@@ -127,7 +192,16 @@ class ANOVA:
         return f"ANOVA Result\n{self.SSTn:.2f}\t{self.n-1}\t{self.MSn:.2f}\t{self.F:.2f}\n{self.SSE:.2f}\t{self.k*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
 
 class ANOVABlock(ANOVA):
+    """ANOVA class for two-way ANOVA (block)"""
     def __init__(self,data :NDArray[np.float64]):
+        """Initialize ANOVABlock
+
+        Args:
+            data (NDArray): 2D array of data
+
+        Raises:
+            ValueError: If data is not 2D
+        """
         super().__init__(data)
         self.sumk = np.sum(data,axis=0)
         self.SSTk = sum(self.sumk**2)/self.k-self.sum**2/self.N
@@ -150,7 +224,16 @@ class ANOVABlock(ANOVA):
         return f"ANOVABlock Result\n{self.SSTn:.2f}\t{self.k-1}\t{self.MSn:.2f}\t{self.F0:.2f}\n{self.SSTk:.2f}\t{self.n-1}\t{self.MSk:.2f}\t{self.F1:.2f}\n{self.SSE:.2f}\t{(self.k-1)*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
 
 class ANOVA2:
+    """ANOVA class for two-way ANOVA (factorial)"""
     def __init__(self,data :NDArray[np.float64]):
+        """Initialize ANOVA2
+
+        Args:
+            data (NDArray): 3D array of data
+
+        Raises:
+            ValueError: If data is not 3D
+        """
         self.data = data
         self.process()
         
