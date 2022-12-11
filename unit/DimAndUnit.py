@@ -1,11 +1,11 @@
 import sys
 from typing import Literal, Union
 from ..typedef import *
-from ..stat import freq
+from ..stats import freq
 
 BaseDim=Literal["T","L","M","N","I","J","H"]
 DimensionResolvables = Union["Dimension","BaseUnit","Unit",str]
-CompoundDimensionResolvables = Union["CompoundDimension","CompoundUnit",DimensionResolvables,str]
+CompoundDimensionResolvables = Union["CompoundDimension","CompoundUnit","CompoundBaseUnit",DimensionResolvables,str]
 CompoundUnitResolvables = Union["CompoundUnit","Unit","BaseUnit"]
 UnitResolvables = Union["Unit","BaseUnit"]
 
@@ -30,6 +30,8 @@ def resolveCompoundDim(i:CompoundDimensionResolvables)->"CompoundDimension":
             [resolveDim(j) for j in num if j in baseDim],
             [resolveDim(j) for j in den if j in baseDim]
         )
+    elif isinstance(i,CompoundBaseUnit):
+        return CompoundDimension(i.numerator,i.denominator)  # type: ignore
     elif isinstance(i,BaseUnit):
         return CompoundDimension([resolveDim(i)],[])
     elif isinstance(i,Dimension):
@@ -104,7 +106,7 @@ class CompoundDimension:
     def __init__(self,num:list[DimensionResolvables],den:list[DimensionResolvables]):
         self.numerator=list(map(resolveDim,num))
         self.denominator=list(map(resolveDim,den))
-        self.onEdit()
+        self.onEdit(True)
 
     def __repr__(self) -> str:
         return f"{self.numerator}/{self.denominator}"
@@ -120,7 +122,7 @@ class CompoundDimension:
     def resolve(i:CompoundDimensionResolvables)->"CompoundDimension":
         return resolveCompoundDim(i)
 
-    def onEdit(self):
+    def onEdit(self,callback=False):
         for i in self.numerator:
             for j in self.denominator:
                 if i==j:
@@ -133,6 +135,9 @@ class CompoundDimension:
                     self.numerator.remove(i)
                     self.denominator.remove(j)
                     break
+
+        if callback:
+            self.onEdit()
         return
 
     def __mul__(self, o:CompoundDimensionResolvables) -> "CompoundDimension":
@@ -219,10 +224,18 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension):
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim)
 
     def ratio(self,o:"CompoundBaseUnit")->number:
+        """Ratio of self to 1 other"""
         if self.sameDim(o):
             return self.mul/o.mul
         else:
             raise Exception("Cannot find ratio of units with different dimensions")
+
+    def base(self)->"CompoundBaseUnit":
+        dim=resolveCompoundDim(self)
+        if dim in DefaultCompoundUnit:
+            return DefaultCompoundUnit[dim]
+        else:
+            raise NotImplementedError("Not implemented dynamic base unit")
 
     def __eq__(self, o: "CompoundBaseUnit"):
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim) and self.mul==o.mul and self.offset==o.offset
@@ -248,6 +261,9 @@ class prefix:
     def __mul__(self, o: CompoundUnitResolvables) -> "CompoundUnit":
         o=resolveCompoundUnit(o)
         return CompoundUnit(o.numerator,o.denominator,self.name + o.name,self.symbol+o.symbol,10**self.mul*o.mul,o.offset/10**o.mul)  # type: ignore
+
+    def __rmul__(self, o: number) -> number:
+            return o*self.mul
 
 class Value:
     unit: CompoundUnit
@@ -300,7 +316,20 @@ class Value:
         else:
             raise Exception("Unit mismatch")
 
+    @property
+    def inBase(self)->"Value":
+        return self.inUnit(self.unit.base())
+
+    def __eq__(self, o: "Value") -> bool:
+        if self.unit == o.unit:
+            return self.value==o.value
+        elif self.unit.sameDim(o.unit):
+            return self.value == ((o.value-o.unit.offset)*o.unit.mul/self.unit.mul +self.unit.offset)
+        else:
+            raise Exception("Unit mismatch")
+
     to = inUnit
+    toBase = inBase
 
 #Sync with unitdef.py
 
