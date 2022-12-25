@@ -21,3 +21,4 @@ from .combinatorics import binomial,perm,comb
 from .distribution import DiscreteDistribution,UniformDistribution,BinomialDistribution,GeometricDistribution,HypergeometricDistribution,JointDiscreteDistribution
 from .contDistribution import ContinuousDistribution,ContinuousUniformDistribution,NormalDistribution,pZ,DefaultND,x,oo,Zp,binomialZ
 from .customOp import p
+from .dataAnalysis import *
