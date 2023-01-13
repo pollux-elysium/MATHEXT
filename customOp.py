@@ -1,5 +1,6 @@
 from typing import Callable, Generic,TypeVar
 from .typedef import *
+import cmath
 I1=TypeVar("I1")
 I2=TypeVar("I2")
 O=TypeVar("O")
@@ -32,4 +33,8 @@ class InfixReturn(Generic[I2,O]):
 def Parallel2Resistor(R1:number,R2:number):
     return (R1*R2)/(R1+R2)
 
+def Arg(mag:number,a:number):
+    return cmath.rect(mag,a)
+
 p = Infix(Parallel2Resistor)
+A=Infix(Arg)

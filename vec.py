@@ -277,17 +277,17 @@ class v3d:
     @property
     def az(self):
         """Angle between Z axis"""
-        return abs((pi/2-self.asc))
+        return acos(self.unit().z)
 
     @property
     def ax(self):
         """Angle between X axis"""
-        return abs(atan2(hypot(self.y, self.z), self.x))
+        return acos(self.unit().x)
 
     @property
     def ay(self):
         """Angle between Y axis"""
-        return abs(atan2(hypot(self.x, self.z), self.y))
+        return acos(self.unit().y)
 
     @staticmethod
     def dmae(m: float, a: float, e: float):
