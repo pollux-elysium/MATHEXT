@@ -220,6 +220,9 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension):
         o=resolveCompoundUnit(o)
         return CompoundUnit(self.numerator+o.denominator,self.denominator+o.numerator,self.name + "/" + o.name,self.symbol+"/"+o.symbol,self.mul/o.mul,self.offset-o.offset)  # type: ignore
 
+    def __pow__(self, o: int) -> "CompoundUnit":
+        return CompoundUnit(self.numerator*o,self.denominator*o,self.name+f"^{o}",self.symbol+f"^{o}",self.mul**o,self.offset*o)
+
     def sameDim(self,o:"CompoundBaseUnit")->bool:
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim)
 
@@ -326,6 +329,9 @@ class Value:
 
     def __neg__(self) -> "Value":
         return Value(-self.value,self.unit)
+    
+    def __pow__(self, o: number) -> "Value":
+        return Value(self.value**o,self.unit**o)
 
     def inUnit(self,unit:CompoundUnitResolvables)->"Value":
         unit=resolveCompoundUnit(unit)
