@@ -85,3 +85,15 @@ def localMin(x: list[number]|dict[T,number],n: int=1) -> list[number]|dict[T,num
             ret[min(dic,key=dic.get)]=min(dic.values()) #type: ignore
             del dic[min(dic,key=dic.get)] #type: ignore
         return ret
+
+def percentError(real: number,theory: number) -> number:
+    """Return the percent error of approx from real
+
+    Args:
+        real (number): Real value or measurement
+        theory (number): Theoretical value
+
+    Returns:
+        number: Percent error of approx from real
+    """
+    return abs((real-theory)/theory)*100
