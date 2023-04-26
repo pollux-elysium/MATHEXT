@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from math import exp, log, sqrt
 from typing import Literal, Union
 
@@ -7,6 +8,19 @@ from .listelemop import *
 from .typedef import *
 from .matrix import AugMat
 import numpy as np
+
+def bestFit(reg:"Reg") -> "Reg":
+    """Find the best fit regression line for a regression object.
+    
+    Args:
+        reg (Reg): The regression object.
+        
+    Returns:
+        Reg: The best fit regression line."""
+    
+    regArr:list[Reg] = [LinReg(reg),QuadReg(reg),CubReg(reg),ExpReg(reg),LogReg(reg)]
+    return regArr[regArr.index(max(regArr,key=lambda x:x.rsq))]
+
 
 class Reg:
     """Base Regression class template.
@@ -98,13 +112,37 @@ class Reg:
         self.fx=reg.fx
         return self
 
+    @property
+    def rsq(self) -> number:
+        """The r^2 value of the regression line.
+
+        Returns:
+            number: The r^2 value.
+        """
+        e=sub(self.fx,[self.f(i) for i in self.x])
+        SSres=sum(mul(e,e))
+        mean=sum(self.fx)/len(self.fx)
+        SStot=sum(mul(Stot:=sub(self.fx,[mean for i in self.fx]),Stot))
+        return 1-SSres/SStot
+
+    @abstractmethod
+    def f(self,x:number)->number:
+        """f(x) for the regression line.
+        
+        Args:
+            x (number): The x value.
+            
+        Returns:
+            number: The f(x) value."""
+        pass
+    
 class LinReg(Reg):
     """Linear Regression class.
     
     In the form y = mx + c."""
 
     def __repr__(self) -> str:
-        return f"{self.x=}\n{self.fx=}\ny~{self.m}x+{self.c}"
+        return f"{self.x=}\n{self.fx=}\ny~{self.m}x{self.c:+}"
 
     @staticmethod
     def make(n: int = 0, eval: bool = False, env: dict | None = None):
@@ -149,13 +187,14 @@ class LinReg(Reg):
         """
         return (f-self.c)/self.m
 
+
 class QuadReg(Reg):
     """Quadratic Regression class.
     
     In the form y = ax^2 + bx + c."""
 
     def __repr__(self) -> str:
-        return f"{self.x=}\n{self.fx=}\ny~{self.a}x^2+{self.b}x+{self.c}"
+        return f"{self.x=}\n{self.fx=}\ny~{self.a}x^2{self.b:+}x{self.c:+}"
 
     @staticmethod
     def make(n: int = 0, eval: bool = False, env: dict | None = None):
@@ -213,7 +252,7 @@ class CubReg(Reg):
     In the form y = ax^3 + bx^2 + cx + d."""
 
     def __repr__(self) -> str:
-        return f"{self.x=}\n{self.fx=}\ny~{self.a}x^3+{self.b}x^2+{self.c}x+{self.d}"
+        return f"{self.x=}\n{self.fx=}\ny~{self.a}x^3{self.b:+}x^2{self.c:+}x{self.d:+}"
 
     @staticmethod
     def make(n: int = 0, eval: bool = False, env: dict | None = None):
