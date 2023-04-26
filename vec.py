@@ -1,8 +1,9 @@
 from cmath import rect as rec,phase,pi
 from math import radians as rad,sin,cos,degrees as deg,hypot,atan2,acos
 from typing import Union,Literal, overload
-from numpy import cross,dot
+from numpy import cross,dot,array
 from .typedef import *
+from .matrix import Mat
 
 def drec(x: float, y: float) -> complex:
     """Returns a complex number from polar coordinates
@@ -399,7 +400,7 @@ class v3d:
             v = v3d(*v)
         return deg(acos(dot(self.toList(), v.toList())/self.m/v.m))
 
-    def project(self,v:'v3d'):
+    def project(self,v:Union['v3d',list[float]]):
         """Project vector to another vector
         
         Args:
@@ -408,6 +409,34 @@ class v3d:
         Returns:
             v3d: projected vector
         """
-        if type(v) != v3d:
+        if not isinstance(v, v3d):
             v = v3d(*v)
         return v*(self*v/v.m)
+
+    def rotate(self, v: 'v3d',):
+        """Rotate vector to another vector
+        
+        Args:
+            v (v3d): vector to rotate to
+            
+        Returns:
+            v3d: rotated vector
+        """
+        if type(v) != v3d:
+            v = v3d(*v)
+
+        v=v.unit()
+        # ROTMAT = YAW * PITCH * ROLL
+        alpha = v.angle
+        beta = v.asc
+        rot_mat = Mat(array([
+            [cos(alpha),-sin(alpha),0.],
+            [sin(alpha),cos(alpha),0.],
+            [0.,0.,1.]])
+        )@Mat(array([
+            [cos(beta),0.,sin(beta)],
+            [0,1,0],
+            [-sin(beta),0.,cos(beta)]])
+        )
+        rot = rot_mat@Mat(array([self.x, self.y, self.z]).transpose())
+        return v3d(list(rot.a.transpose()))
