@@ -67,6 +67,9 @@ atto = prefix("atto","a",-18)
 zepto = prefix("zepto","z",-21)
 yocto = prefix("yocto","y",-24)
 #Compound Units
+
+DimLes = CompoundUnit([],[],"","",1)
+
 #Speed
 meterPerSecond = CompoundUnit([meter],[sec],"meter/sec","m/s",1)
 kilometerPerHour = CompoundUnit([meter],[hour],"kilometer/hour","km/h",1/3.6)
@@ -77,17 +80,18 @@ meterPerSecondSquared = CompoundUnit([meter],[sec,sec],"meter/sec^2","m/s.s",1)
 kilometerPerHourSquared = CompoundUnit([meter],[hour,hour],"kilometer/hour^2","km/hr.hr",1/1.944**2)
 
 #Area
-squareMeter = CompoundUnit([meter],[meter],"square meter","m.m",1)
-squareKilometer = CompoundUnit([meter],[meter],"square kilometer","m.km",1e6)
-squareMiles = CompoundUnit([miles],[miles],"square miles","mi.mi",2.58999e6)
-squareYard = CompoundUnit([yard],[yard],"square yard","yd.yd",0.836127)
-squareFoot = CompoundUnit([foot],[foot],"square foot","ft.ft",0.09290304)
-squareInch = CompoundUnit([inch],[inch],"square inch","in.in",0.00064516)
-acre = CompoundUnit([meter],[meter],"acre","acre",4046.8564224)
-hectre = CompoundUnit([meter],[meter],"hectre","hectre",1e4)
-วา = CompoundUnit([meter],[meter],"วา","วา",4)
-ไร่ = CompoundUnit([meter],[meter],"ไร่","ไร่",1600)
-งาน = CompoundUnit([meter],[meter],"งาน","งาน",400)
+squareMeter = CompoundUnit([meter,meter],[],"square meter","m.m",1)
+squareKilometer = CompoundUnit([meter,meter],[],"square kilometer","m.km",1e6)
+squareMiles = CompoundUnit([miles,miles],[],"square miles","mi.mi",2.58999e6)
+squareYard = CompoundUnit([yard,yard],[],"square yard","yd.yd",0.836127)
+squareFoot = CompoundUnit([foot,foot],[],"square foot","ft.ft",0.09290304)
+squareInch = CompoundUnit([inch,inch],[],"square inch","in.in",0.00064516)
+acre = CompoundUnit([meter,meter],[],"acre","acre",4046.8564224)
+hectre = CompoundUnit([meter,meter],[],"hectre","hectre",1e4)
+วา = CompoundUnit([meter,meter],[],"วา","วา",4)
+ไร่ = CompoundUnit([meter,meter],[],"ไร่","ไร่",1600)
+งาน = CompoundUnit([meter,meter],[],"งาน","งาน",400)
+darcy = CompoundUnit([meter,meter],[],"darcy","darcy",9.869233e-13)
 
 #Volume
 liter = CompoundUnit([meter,meter,meter],[],"liter","l",1e-3)
@@ -149,6 +153,12 @@ voltPerMeter = CompoundUnit([kilogram,meter],[sec,sec,sec,amp],"volt/meter","V/m
 amu = CompoundUnit([kilogram],[],"atomic mass unit","amu",1.66053906660e-27)
 gpm = CompoundUnit([kilogram],[mol],"gram per mole","gpm",1e-3)
 
+#Viscosity
+poise = CompoundUnit([kilogram],[meter,sec],"poise","P",0.1)
+pascalSecond = CompoundUnit([kilogram],[meter,sec],"pascal second","Pa.s",1)
+centipoise = CompoundUnit([kilogram],[meter,sec],"centipoise","cP",1e-3)
+micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
+millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
 
 DefaultCompoundUnit = {
     CompoundDimension(["L"],["T"]):meterPerSecond, #Speed

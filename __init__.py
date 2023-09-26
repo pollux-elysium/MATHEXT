@@ -16,8 +16,10 @@ from .degRad import dsin,dcos,dtan
 from .vec import drec,drec3d,dpol,dpol3d,rec3d,pol3d,v3d
 from .matrix import Mat,AugMat
 from .geometry import line,plane
-from .regression import LinReg,QuadReg,ExpReg,LogReg
+from .regression import LinReg,QuadReg,ExpReg,LogReg,Reg,bestFit
 from .combinatorics import binomial,perm,comb
 from .distribution import DiscreteDistribution,UniformDistribution,BinomialDistribution,GeometricDistribution,HypergeometricDistribution,JointDiscreteDistribution
 from .contDistribution import ContinuousDistribution,ContinuousUniformDistribution,NormalDistribution,pZ,DefaultND,x,oo,Zp,binomialZ
 from .customOp import p
+from .dataAnalysis import *
+from .nsolve import invFuncSolve

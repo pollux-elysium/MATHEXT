@@ -22,9 +22,7 @@ def resolveDim(i:DimensionResolvables)->"Dimension":
         raise TypeError("Not resolvable to dimension")
         
 def resolveCompoundDim(i:CompoundDimensionResolvables)->"CompoundDimension":
-    if isinstance(i,CompoundDimension):
-        return i
-    elif isinstance(i,str):
+    if isinstance(i,str):
         num,den = i.split("/")
         return CompoundDimension(
             [resolveDim(j) for j in num if j in baseDim],
@@ -36,6 +34,8 @@ def resolveCompoundDim(i:CompoundDimensionResolvables)->"CompoundDimension":
         return CompoundDimension([resolveDim(i)],[])
     elif isinstance(i,Dimension):
         return CompoundDimension([i],[])
+    if isinstance(i,CompoundDimension):
+        return i
     else:
         raise TypeError("Not resolvable to compound dimension")
 
@@ -192,6 +192,10 @@ class BaseUnit(Dimension):
 
     def __rmul__(self, o:number) -> "Value":
         return Value(o,self)
+    
+    def __rtruediv__(self, o:number) -> "Value":
+        dim = resolveDim(self.dim)
+        return Value(o,CompoundUnit([],[dim],"/"+self.name,"/"+self.symbol,1/self.mul,-self.offset/self.mul)) 
 
 class Unit(BaseUnit):
     mul:number
@@ -219,6 +223,9 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension):
     def __truediv__(self, o: CompoundUnitResolvables) -> "CompoundUnit":
         o=resolveCompoundUnit(o)
         return CompoundUnit(self.numerator+o.denominator,self.denominator+o.numerator,self.name + "/" + o.name,self.symbol+"/"+o.symbol,self.mul/o.mul,self.offset-o.offset)  # type: ignore
+
+    def __pow__(self, o: int) -> "CompoundUnit":
+        return CompoundUnit(self.numerator*o,self.denominator*o,self.name+f"^{o}",self.symbol+f"^{o}",self.mul**o,self.offset*o) # type: ignore
 
     def sameDim(self,o:"CompoundBaseUnit")->bool:
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim)
@@ -263,7 +270,7 @@ class prefix:
         return CompoundUnit(o.numerator,o.denominator,self.name + o.name,self.symbol+o.symbol,10**self.mul*o.mul,o.offset/10**o.mul)  # type: ignore
 
     def __rmul__(self, o: number) -> number:
-            return o*self.mul
+            return o*10**self.mul
 
 class Value:
     unit: CompoundUnit
@@ -276,17 +283,37 @@ class Value:
     def __repr__(self) -> str:
         return f"{self.value} {self.unit.symbol}"
 
-    def __mul__(self, o: "Value" | CompoundUnitResolvables) -> "Value":
+    def __mul__(self, o: "Value" | CompoundUnitResolvables|number) -> "Value":
         if isinstance(o,Value):
             return Value(self.value*o.value,self.unit*o.unit)
+        elif isinstance(o,number):
+            return Value(self.value*o,self.unit)
         else:
             return Value(self.value,resolveCompoundUnit(o)*self.unit)
 
-    def __truediv__(self, o: "Value" | CompoundUnitResolvables) -> "Value":
+    def __rmul__(self, o: "Value" | CompoundUnitResolvables|number) -> "Value":
+        if isinstance(o,Value):
+            return Value(self.value*o.value,self.unit*o.unit)
+        elif isinstance(o,number):
+            return Value(self.value*o,self.unit)
+        else:
+            return Value(self.value,resolveCompoundUnit(o)*self.unit)
+
+    def __truediv__(self, o: "Value" | CompoundUnitResolvables|number) -> "Value":
         if isinstance(o,Value):
             return Value(self.value/o.value,self.unit/o.unit)
+        elif isinstance(o,number):
+            return Value(self.value/o,self.unit)
         else:
             return Value(self.value,self.unit/resolveCompoundUnit(o))
+        
+    def __rtruediv__(self, o: "Value" | CompoundUnitResolvables|number) -> "Value":
+        if isinstance(o,Value):
+            return Value(o.value/self.value,o.unit/self.unit)
+        elif isinstance(o,number):
+            return o*meter/meter/self
+        else:
+            return Value(self.value,resolveCompoundUnit(o)/self.unit)
 
     def __add__(self, o: "Value") -> "Value":
         if self.unit == o.unit:
@@ -306,12 +333,15 @@ class Value:
 
     def __neg__(self) -> "Value":
         return Value(-self.value,self.unit)
+    
+    def __pow__(self, o: int) -> "Value":
+        return Value(self.value**o,self.unit**o)
 
     def inUnit(self,unit:CompoundUnitResolvables)->"Value":
         unit=resolveCompoundUnit(unit)
-        if self.unit == unit:
-            return self
-        elif self.unit.sameDim(unit):
+        # if self.unit == unit:
+        #     return self
+        if self.unit.sameDim(unit):
             return Value((self.value-self.unit.offset)*self.unit.mul/unit.mul + unit.offset,unit)
         else:
             raise Exception("Unit mismatch")
@@ -360,7 +390,7 @@ yard = Unit("L","yard","yd",0.9144)
 pound = Unit("M","pound","lbm",.45359237)
 ounce = Unit("M","ounce","oz",.028349523125)
 gram = Unit("M","gram","g",.001)
-ton = Unit("M","metricTon","t",1000)
+ton = Unit("M","metricTon","ton",1000)
 
 #TIME
 minutes = Unit("T","minutes","min",60)
@@ -398,6 +428,11 @@ atto = prefix("atto","a",-18)
 zepto = prefix("zepto","z",-21)
 yocto = prefix("yocto","y",-24)
 #Compound Units
+
+#Dimensionless
+
+DimLes = CompoundUnit([],[],"","",1)
+
 #Speed
 meterPerSecond = CompoundUnit([meter],[sec],"meter/sec","m/s",1)
 kilometerPerHour = CompoundUnit([meter],[hour],"kilometer/hour","km/h",1/3.6)
@@ -408,17 +443,17 @@ meterPerSecondSquared = CompoundUnit([meter],[sec,sec],"meter/sec^2","m/s.s",1)
 kilometerPerHourSquared = CompoundUnit([meter],[hour,hour],"kilometer/hour^2","km/hr.hr",1/1.944**2)
 
 #Area
-squareMeter = CompoundUnit([meter],[meter],"square meter","m.m",1)
-squareKilometer = CompoundUnit([meter],[meter],"square kilometer","m.km",1e6)
-squareMiles = CompoundUnit([miles],[miles],"square miles","mi.mi",2.58999e6)
-squareYard = CompoundUnit([yard],[yard],"square yard","yd.yd",0.836127)
-squareFoot = CompoundUnit([foot],[foot],"square foot","ft.ft",0.09290304)
-squareInch = CompoundUnit([inch],[inch],"square inch","in.in",0.00064516)
-acre = CompoundUnit([meter],[meter],"acre","acre",4046.8564224)
-hectre = CompoundUnit([meter],[meter],"hectre","hectre",1e4)
-วา = CompoundUnit([meter],[meter],"วา","วา",4)
-ไร่ = CompoundUnit([meter],[meter],"ไร่","ไร่",1600)
-งาน = CompoundUnit([meter],[meter],"งาน","งาน",400)
+squareMeter = CompoundUnit([meter,meter],[],"square meter","m.m",1)
+squareKilometer = CompoundUnit([meter,meter],[],"square kilometer","km.km",1e6)
+squareMiles = CompoundUnit([miles,miles],[],"square miles","mi.mi",2.58999e6)
+squareYard = CompoundUnit([yard,yard],[],"square yard","yd.yd",0.836127)
+squareFoot = CompoundUnit([foot,foot],[],"square foot","ft.ft",0.09290304)
+squareInch = CompoundUnit([inch,inch],[],"square inch","in.in",0.00064516)
+acre = CompoundUnit([meter,meter],[],"acre","acre",4046.8564224)
+hectre = CompoundUnit([meter,meter],[],"hectre","hectre",1e4)
+วา = CompoundUnit([meter,meter],[],"วา","วา",4)
+ไร่ = CompoundUnit([meter,meter],[],"ไร่","ไร่",1600)
+งาน = CompoundUnit([meter,meter],[],"งาน","งาน",400)
 
 #Volume
 liter = CompoundUnit([meter,meter,meter],[],"liter","l",1e-3)
@@ -430,7 +465,7 @@ fluidOunce = CompoundUnit([inch,inch,inch],[],"fluid ounce","fl.oz",0.0000295735
 cup = CompoundUnit([inch,inch,inch],[],"cup","cup",0.0002365882365)
 pint = CompoundUnit([inch,inch,inch],[],"pint","pt",0.000473176473)
 quart = CompoundUnit([inch,inch,inch],[],"quart","qt",0.000946352946)
-cc = CompoundUnit([inch,inch,inch],[],"CC","CC",0.001)
+cc = CompoundUnit([meter,meter,meter],[],"CC","CC",0.000001)
 
 #Density
 kilogramPerCubicMeter = CompoundUnit([kilogram],[meter,meter,meter],"kilogram/cubic meter","kg/m.m.m",1)
@@ -450,7 +485,7 @@ poundForce = CompoundUnit([pound,foot],[sec,sec],"pound force","lbf",4.448221615
 pascal = CompoundUnit([kilogram],[meter,sec,sec],"pascal","Pa",1)
 bar = CompoundUnit([kilogram],[meter,sec,sec],"bar","bar",1e5)
 atm = CompoundUnit([kilogram],[meter,sec,sec],"atmosphere","atm",101325)
-psi = CompoundUnit([pound],[inch,inch],"pound/square inch","psi",6894.757293168)
+psi = CompoundUnit([kilogram],[meter,sec,sec],"pound/square inch","psi",6894.757293168)
 mmHg = CompoundUnit([kilogram],[meter,sec,sec],"millimeter of mercury","mmHg",133.322)
 torr = CompoundUnit([kilogram],[meter,sec,sec],"torr","torr",133.322)
 
@@ -476,9 +511,19 @@ volt = CompoundUnit([kilogram,meter,meter],[sec,sec,sec,amp],"volt","V",1)
 #Electric Field
 voltPerMeter = CompoundUnit([kilogram,meter],[sec,sec,sec,amp],"volt/meter","V/m",1)
 
+#Chemical.14
+amu = CompoundUnit([kilogram],[],"atomic mass unit","amu",1.66053906660e-27)
+gpm = CompoundUnit([kilogram],[mol],"gram per mole","gpm",1e-3)
 
+#Viscosity
+poise = CompoundUnit([kilogram],[meter,sec],"poise","P",0.1)
+pascalSecond = CompoundUnit([kilogram],[meter,sec],"pascal second","Pa.s",1)
+centipoise = CompoundUnit([kilogram],[meter,sec],"centipoise","cP",1e-3)
+micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
+millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
 
-DefaultCompoundUnit = {
+DefaultCompoundUnit: dict[CompoundDimension, CompoundUnit] = {
+    CompoundDimension([],[]):DimLes, # Dimensionless
     CompoundDimension(["L"],["T"]):meterPerSecond, #Speed
     CompoundDimension(["L"],["T","T"]):meterPerSecondSquared,#Acceleration
     CompoundDimension(["L","L"],[]):squareMeter,#Area
@@ -491,4 +536,5 @@ DefaultCompoundUnit = {
     CompoundDimension(["I","T"],[]):coulomb,#Charge
     CompoundDimension(["M","L","L"],["T","T","T","I"]):volt,#Electric Potential
     CompoundDimension(["M","L"],["T","T","T","I"]):voltPerMeter,#Electric Field
+    CompoundDimension(["M"],["L","T"]):pascalSecond,#Viscosity
 }

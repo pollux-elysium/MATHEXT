@@ -3,6 +3,18 @@ from .typedef import T,number,NDArray
 import statistics
 import numpy as np
 
+def logmean(x: list[number]) -> float:
+    """Return log mean of list x
+
+    Args:
+        x (list): List of numbers
+
+    Returns:
+        float: Log mean of list x
+    """
+    return 10**(sum([np.log10(i) for i in x])/len(x))
+    
+
 def lapprox(p1:tuple[number,number],p2:tuple[number,number],x:number)->float:
     """Return y value of a line approximated by two points
 
