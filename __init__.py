@@ -22,3 +22,4 @@ from .distribution import DiscreteDistribution,UniformDistribution,BinomialDistr
 from .contDistribution import ContinuousDistribution,ContinuousUniformDistribution,NormalDistribution,pZ,DefaultND,x,oo,Zp,binomialZ
 from .customOp import p
 from .dataAnalysis import *
+from .nsolve import invFuncSolve
