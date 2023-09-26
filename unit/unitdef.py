@@ -67,6 +67,9 @@ atto = prefix("atto","a",-18)
 zepto = prefix("zepto","z",-21)
 yocto = prefix("yocto","y",-24)
 #Compound Units
+
+DimLes = CompoundUnit([],[],"","",1)
+
 #Speed
 meterPerSecond = CompoundUnit([meter],[sec],"meter/sec","m/s",1)
 kilometerPerHour = CompoundUnit([meter],[hour],"kilometer/hour","km/h",1/3.6)
@@ -88,6 +91,7 @@ hectre = CompoundUnit([meter,meter],[],"hectre","hectre",1e4)
 วา = CompoundUnit([meter,meter],[],"วา","วา",4)
 ไร่ = CompoundUnit([meter,meter],[],"ไร่","ไร่",1600)
 งาน = CompoundUnit([meter,meter],[],"งาน","งาน",400)
+darcy = CompoundUnit([meter,meter],[],"darcy","darcy",9.869233e-13)
 
 #Volume
 liter = CompoundUnit([meter,meter,meter],[],"liter","l",1e-3)
