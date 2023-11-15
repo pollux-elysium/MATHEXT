@@ -1,7 +1,7 @@
 from abc import abstractmethod
+from functools import cached_property
 from math import exp, log, sqrt
 from typing import Literal, Union
-
 from .poly import solvePoly
 from .load import ldfe,ldf
 from .listelemop import *
@@ -424,3 +424,65 @@ class LogReg(Reg):
             number: The x value.
         """
         return exp((f-self.b)/self.a)
+
+class PolyReg(Reg):
+
+
+
+    def __init__(self, x: list[number] | Reg, fx: list[number] | None = None,degree : int = 1) -> None:
+        super().__init__(x, fx)
+        self.degree = degree
+
+    @staticmethod
+    def make(n: int = 0, eval: bool = False, env: dict | None = None):
+        return LogReg(Reg.make(n,eval,env))
+
+    @staticmethod
+    def lot(n:list[tuple[number,number]]):
+        return LogReg(Reg.lot(n))
+    
+    @cached_property
+    def solArray(self):
+        deg = self.degree
+
+
+        return AugMat(
+            np.array(
+                [[sum(i**(2*deg-j-k) for i in self.x) for j in range(deg+1)] for k in range(deg+1)]
+            ),
+            [sum(mul([i**(deg-j) for i in self.x],self.fx)) for j in range(deg+1)]
+        ).asolve()
+    
+    @property
+    def coeffs(self):
+        return self.solArray
+    
+    def f(self,x:number):
+        """f(x) for the regression line.
+
+        Args:
+            x (number): The x value.
+
+        Returns:
+            number: The f(x) value."""
+        return sum(self.coeffs[i]*x**(self.degree-i) for i in range(self.degree+1))
+    
+    def xf(self,f:number):
+        """x for the regression line.
+
+        Args:
+            f (number): The f(x) value.
+
+        Returns:
+            number: The x value.
+        """
+        return solvePoly(*self.coeffs,f)
+    
+    def __repr__(self) -> str:
+
+        return f"{self.x=}\n{self.fx=}\ny~{''.join([f'{self.coeffs[i]}x^{self.degree-i}+' for i in range(self.degree+1)])[:-1]}"
+    
+    def __str__(self) -> str:
+        return self.__repr__()
+    
+    
