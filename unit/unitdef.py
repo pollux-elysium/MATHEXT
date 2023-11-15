@@ -26,7 +26,7 @@ miles = Unit("L","miles","mi",1609.344)
 yard = Unit("L","yard","yd",0.9144)
 
 #MASS
-pound = Unit("M","pound","lbm",.45359237)
+lbm = pound = Unit("M","pound","lbm",.45359237)
 ounce = Unit("M","ounce","oz",.028349523125)
 gram = Unit("M","gram","g",.001)
 ton = Unit("M","metricTon","ton",1000)
@@ -134,6 +134,11 @@ kWh = CompoundUnit([kilogram,meter,meter],[sec,sec],"kilowatt hour","kWh",360000
 calorie = CompoundUnit([kilogram,meter,meter],[sec,sec],"calorie","cal",4.1868)
 btu = CompoundUnit([kilogram,meter,meter],[sec,sec],"British thermal unit","btu",1055.05585262)
 
+#Energy Density
+joulePerKilogram = CompoundUnit([kilogram,meter,meter],[sec,sec],"joule/kilogram","J/kg",1)
+btuPerPound = CompoundUnit([pound,foot,foot],[sec,sec],"British thermal unit/pound","btu/lbm",2326)
+caloriePerGram = CompoundUnit([gram,meter,meter],[sec,sec],"calorie/gram","cal/g",4186.8)
+
 #Power
 watt = CompoundUnit([kilogram,meter,meter],[sec,sec,sec],"watt","W",1)
 horsepower = CompoundUnit([kilogram,meter,meter],[sec,sec,sec],"horsepower","hp",745.699871582270)
@@ -161,6 +166,15 @@ micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
 millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
 
 DefaultCompoundUnit = {
+
+    Dimension("T"):sec,
+    Dimension("L"):meter,
+    Dimension("M"):kilogram,
+    Dimension("N"):mol,
+    Dimension("H"):kelvin,
+    Dimension("I"):amp,
+    Dimension("J"):cd,
+    CompoundDimension([],[]):DimLes,
     CompoundDimension(["L"],["T"]):meterPerSecond, #Speed
     CompoundDimension(["L"],["T","T"]):meterPerSecondSquared,#Acceleration
     CompoundDimension(["L","L"],[]):squareMeter,#Area

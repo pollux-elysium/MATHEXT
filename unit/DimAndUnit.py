@@ -138,7 +138,7 @@ class CompoundDimension:
 
         if callback:
             self.onEdit()
-        return
+        return self
 
     def __mul__(self, o:CompoundDimensionResolvables) -> "CompoundDimension":
         o=resolveCompoundDim(o)
@@ -196,6 +196,9 @@ class BaseUnit(Dimension):
     def __rtruediv__(self, o:number) -> "Value":
         dim = resolveDim(self.dim)
         return Value(o,CompoundUnit([],[dim],"/"+self.name,"/"+self.symbol,1/self.mul,-self.offset/self.mul)) 
+    
+    def __pow__(self,o:int) -> "CompoundUnit":
+        return CompoundUnit([self]*o,[],self.name+f"^{o}",self.symbol+f"^{o}",self.mul**o,self.offset*o)
 
 class Unit(BaseUnit):
     mul:number
@@ -231,7 +234,7 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension):
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim)
 
     def ratio(self,o:"CompoundBaseUnit")->number:
-        """Ratio of self to 1 other"""
+        """Ratio of 1 self to n other"""
         if self.sameDim(o):
             return self.mul/o.mul
         else:
@@ -267,7 +270,7 @@ class prefix:
 
     def __mul__(self, o: CompoundUnitResolvables) -> "CompoundUnit":
         o=resolveCompoundUnit(o)
-        return CompoundUnit(o.numerator,o.denominator,self.name + o.name,self.symbol+o.symbol,10**self.mul*o.mul,o.offset/10**o.mul)  # type: ignore
+        return CompoundUnit(o.numerator,o.denominator,self.name + o.name,self.symbol+o.symbol,(10**self.mul)*o.mul,o.offset/10**o.mul)  # type: ignore
 
     def __rmul__(self, o: number) -> number:
             return o*10**self.mul
@@ -522,8 +525,15 @@ centipoise = CompoundUnit([kilogram],[meter,sec],"centipoise","cP",1e-3)
 micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
 millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
 
-DefaultCompoundUnit: dict[CompoundDimension, CompoundUnit] = {
-    CompoundDimension([],[]):DimLes, # Dimensionless
+DefaultCompoundUnit = {
+    Dimension("T"):sec,
+    Dimension("L"):meter,
+    Dimension("M"):kilogram,
+    Dimension("N"):mol,
+    Dimension("H"):kelvin,
+    Dimension("I"):amp,
+    Dimension("J"):cd,
+    CompoundDimension([],[]):DimLes,
     CompoundDimension(["L"],["T"]):meterPerSecond, #Speed
     CompoundDimension(["L"],["T","T"]):meterPerSecondSquared,#Acceleration
     CompoundDimension(["L","L"],[]):squareMeter,#Area
@@ -536,5 +546,4 @@ DefaultCompoundUnit: dict[CompoundDimension, CompoundUnit] = {
     CompoundDimension(["I","T"],[]):coulomb,#Charge
     CompoundDimension(["M","L","L"],["T","T","T","I"]):volt,#Electric Potential
     CompoundDimension(["M","L"],["T","T","T","I"]):voltPerMeter,#Electric Field
-    CompoundDimension(["M"],["L","T"]):pascalSecond,#Viscosity
 }

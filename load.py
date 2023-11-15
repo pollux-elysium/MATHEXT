@@ -210,3 +210,10 @@ def parse(x:T, f:number=1) -> list[T]:
         return [x]*f
     else:
         return [x] # type: ignore
+
+def ltsvf(i:str)->list[list[float]]:
+    return [[float(k) for k in j.split("\t")]for j in i.split("\n")]
+
+def ltsvi(i:str)->list[list[int]]:
+    return [[int(k) for k in j.split("\t")]for j in i.split("\n")]
+

@@ -12,7 +12,7 @@ def logmean(x: list[number]) -> float:
     Returns:
         float: Log mean of list x
     """
-    return 10**(sum([np.log10(i) for i in x])/len(x))
+    return (x[0]-x[1])/np.log(x[0]/x[1])
     
 
 def lapprox(p1:tuple[number,number],p2:tuple[number,number],x:number)->float:
@@ -76,7 +76,9 @@ def iqr(x: list[float|int]) -> float:
     """Return interquartile range of list x"""
     return percentile(x,75)-percentile(x,25)
 
-
+def indexClose(x: list[number], n: number) -> int:
+    """Return index of number in list x closest to n"""
+    return x.index(min(x, key=lambda i: abs(i-n)))
 
 class StatData:
     """Wrapper for list to be used with statistics module"""
@@ -281,4 +283,5 @@ class ANOVA2:
 
     @property
     def fmt(self):
-        return f"ANOVA2 Result\n{self.SSa:.2f}\t{self.i-1}\t{self.MSa:.2f}\t{self.Fa:.2f}\n{self.SSb:.2f}\t{self.j-1}\t{self.MSb:.2f}\t{self.Fb:.2f}\n{self.SSab:.2f}\t{(self.i-1)*(self.j-1)}\t{self.MSab:.2f}\t{self.Fab:.2f}\n{self.SSe:.2f}\t{(self.i*self.j)*(self.k-1)}\t{self.MSe:.2f}\n{self.SSt:.2f}\t{(self.i-1)*(self.j-1)*(self.k-1)}"
+        return f"ANOVA2 Result\n{self.SSa:.2f}\t{self.i-1}\t{self.MSa:.2f}\t{self.Fa:.2f}\n{self.SSb:.2f}\t{self.j-1}\t{self.MSb:.2f}\t{self.Fb:.2f}\n{self.SSab:.2f}\t{(self.i-1)*(self.j-1)}\t{self.MSab:.2f}\t{self.Fab:.2f}\n{self.SSe:.2f}\t{(self.i*self.j)*(self.k-1)}\t{self.MSe:.2f}\n{self.SSt:.2f}\t{(self.i)*(self.j)*(self.k)-1}"
+        

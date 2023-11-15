@@ -25,12 +25,12 @@ def ifft(x: list[number]) :
     return np.fft.ifft(x)
 
 @overload
-def localMax(x: list[number],n: int=1) -> list[number]:
+def localMax(x: list[number],n: int=1) -> tuple[list[number],list[number]]:
     ...
 @overload
 def localMax(x: dict[T,number],n: int=1) -> dict[T,number]:
     ...
-def localMax(x: list[number]|dict[T,number],n: int=1) -> list[number]|dict[T,number]:
+def localMax(x: list[number]|dict[T,number],n: int=1) -> tuple[list[number],list[number]]|dict[T,number]:
     """Return list or dict of local maxima of x
 
     Args:
@@ -42,26 +42,42 @@ def localMax(x: list[number]|dict[T,number],n: int=1) -> list[number]|dict[T,num
     """
     if isinstance(x,list):
         arr=x.copy()
-        ret=[]
+        filtered:list[number]=[]
+        index:list[number] = []
+        for i in range(len(arr)):
+            if i==0:
+                if arr[i]>arr[i+1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+            elif i==len(arr)-1:
+                if arr[i]>arr[i-1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+            else:
+                if arr[i-1]<arr[i]>arr[i+1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+        arr=filtered.copy()        
+        retL:list[number]=[]
         for i in range(n):
-            ret.append(max(arr))
+            retL.append(max(arr))
             arr.remove(max(arr))
-        return ret
-    else:
+        return retL,index
+    elif isinstance(x,dict):
         dic = x.copy()
-        ret={}
+        retD:dict[T,number]={}
         for i in range(n):
-            ret[max(dic,key=dic.get)]=max(dic.values()) #type: ignore
+            retD[max(dic,key=dic.get)]=max(dic.values()) #type: ignore
             del dic[max(dic,key=dic.get)] #type: ignore
-        return ret
+        return retD
 
 @overload
-def localMin(x: list[number],n: int=1) -> list[number]:
+def localMin(x: list[number],n: int=1) -> tuple[list[number],list[number]]:
     ...
 @overload
 def localMin(x: dict[T,number],n: int=1) -> dict[T,number]:
     ...
-def localMin(x: list[number]|dict[T,number],n: int=1) -> list[number]|dict[T,number]:
+def localMin(x: list[number]|dict[T,number],n: int=1) -> tuple[list[number],list[number]]|dict[T,number]:
     """Return list or dict of local minima of x
 
     Args:
@@ -73,18 +89,34 @@ def localMin(x: list[number]|dict[T,number],n: int=1) -> list[number]|dict[T,num
     """
     if isinstance(x,list):
         arr=x.copy()
-        ret=[]
+        filtered:list[number]=[]
+        index:list[number] = []
+        for i in range(len(arr)):
+            if i==0:
+                if arr[i]<arr[i+1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+            elif i==len(arr)-1:
+                if arr[i]<arr[i-1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+            else:
+                if arr[i-1]>arr[i]<arr[i+1]:
+                    filtered.append(arr[i])
+                    index.append(i)
+        arr=filtered.copy()
+        retL:list[number]=[]
         for i in range(n):
-            ret.append(min(arr))
+            retL.append(min(arr))
             arr.remove(min(arr))
-        return ret
-    else:
+        return retL,index
+    elif isinstance(x,dict):
         dic = x.copy()
-        ret={}
+        retD:dict[T,number]={}
         for i in range(n):
-            ret[min(dic,key=dic.get)]=min(dic.values()) #type: ignore
+            retD[min(dic,key=dic.get)]=min(dic.values()) #type: ignore
             del dic[min(dic,key=dic.get)] #type: ignore
-        return ret
+        return retD
 
 def percentError(real: number,theory: number) -> number:
     """Return the percent error of approx from real
@@ -94,6 +126,18 @@ def percentError(real: number,theory: number) -> number:
         theory (number): Theoretical value
 
     Returns:
-        number: Percent error of approx from real
+        number: Percent error of real from theory
     """
     return abs((real-theory)/theory)*100
+
+def indexList(x: list[T])-> dict[int,T]:
+    """Return dictionary of index:element pairs from list x
+
+    Args:
+        x (list): List of elements
+
+    Returns:
+        dict: Dictionary of index:element pairs
+    """
+    return {i:x[i] for i in range(len(x))}
+
