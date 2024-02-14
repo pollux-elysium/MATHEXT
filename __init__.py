@@ -23,3 +23,6 @@ from .contDistribution import ContinuousDistribution,ContinuousUniformDistributi
 from .customOp import p
 from .dataAnalysis import *
 from .nsolve import invFuncSolve
+from .floatCalc import nearZero
+from .anova import *
+from .factorialEx import *
