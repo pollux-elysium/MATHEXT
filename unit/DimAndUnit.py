@@ -388,6 +388,8 @@ foot = Unit("L","foot","ft",0.3048)
 inch = Unit("L","inch","in",0.0254)
 miles = Unit("L","miles","mi",1609.344)
 yard = Unit("L","yard","yd",0.9144)
+angstrom = Unit("L","angstrom","A",1e-10)
+
 
 #MASS
 pound = Unit("M","pound","lbm",.45359237)
@@ -525,6 +527,11 @@ centipoise = CompoundUnit([kilogram],[meter,sec],"centipoise","cP",1e-3)
 micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
 millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
 
+#Mass Diffusivity
+sqfPs = CompoundUnit([meter,meter],[sec],"square foot per second","ft.ft/s",0.09290304)
+sqmPs = CompoundUnit([meter,meter],[sec],"square meter per second","m.m/s",1)
+sqcmPs = CompoundUnit([meter,meter],[sec],"square centimeter per second","cm.cm/s",1e-4)
+
 DefaultCompoundUnit = {
     Dimension("T"):sec,
     Dimension("L"):meter,
@@ -546,4 +553,6 @@ DefaultCompoundUnit = {
     CompoundDimension(["I","T"],[]):coulomb,#Charge
     CompoundDimension(["M","L","L"],["T","T","T","I"]):volt,#Electric Potential
     CompoundDimension(["M","L"],["T","T","T","I"]):voltPerMeter,#Electric Field
+    CompoundDimension(["M"],["N"]):amu,#Chemical
+    CompoundDimension(["L","L"],["T"]):sqmPs,#Mass Diffusivity
 }

@@ -80,6 +80,32 @@ def indexClose(x: list[number], n: number) -> int:
     """Return index of number in list x closest to n"""
     return x.index(min(x, key=lambda i: abs(i-n)))
 
+def cumCount(x: list[number],mode:bool = False) -> dict[number,int]:
+    """Return cumulative count of each number in list x
+    
+    Args:
+        x (list): List of numbers
+        mode (bool, optional): False: Less Than.
+    """
+    x.sort()
+    if mode:
+        return {i: len([k for k in x if k <= i]) for i in undupe(x)}
+    else:
+        return {i: len([k for k in x if k >= i]) for i in undupe(x)}
+    
+def cumFreq(x: list[number],mode:bool = False) -> dict[number,float]:
+    """Return cumulative frequency of each number in list x
+    
+    Args:
+        x (list): List of numbers
+        mode (bool, optional): False: Less Than.
+    """
+    x.sort()
+    if mode:
+        return {i: len([k for k in x if k <= i])/len(x) for i in undupe(x)}
+    else:
+        return {i: len([k for k in x if k >= i])/len(x) for i in undupe(x)}
+
 class StatData:
     """Wrapper for list to be used with statistics module"""
     data:list[number]
@@ -168,120 +194,15 @@ class StatData:
     def sigmaXbar(self) -> float:
         """Standard error of the mean"""
         return self.stdev/(len(self.data)**0.5)
+    
+    def __getitem__(self, key: int) -> float:
+        return self.data[key]
+    
+    def __setitem__(self, key: int, value: float):
+        self.data[key] = value
 
-class ANOVA:
-    """ANOVA class for one-way ANOVA"""
-    def __init__(self,data :NDArray[np.float64]):
-        """Initialize ANOVA
+    def __len__(self) -> int:
+        return len(self.data)
+    
+    
 
-        Args:
-            data (NDArray): 2D array of data
-
-        Raises:
-            ValueError: If data is not 2D
-        """
-        self.data = data
-        self.k = len(data)
-        self.n = len(data[0])
-        self.N = self.n*self.k
-        self.sum = np.sum(data)
-        self.sumn = np.sum(data,axis=1)
-        self.sum2 = np.sum(data**2)
-        self.SST = self.sum2-self.sum**2/self.N
-        self.SSTn = sum(self.sumn**2)/self.n-self.sum**2/self.N
-        self.SSE = self.SST-self.SSTn
-        self.MSn = self.SSTn/(self.k-1)
-        self.MSe = self.SSE/(self.k*(self.n-1))
-        self.F = self.MSn/self.MSe
-
-    def __repr__(self):
-        return f"ANOVA({self.data})"
-
-    @property
-    def result(self) -> str:
-        return f"ANOVA Result {self.k=}\n{self.n=}\n{self.N=}\n{self.sum=}\n{self.sumn=}\n{self.sum2=}\n{self.SST=}\n{self.SSTn=}\n{self.SSE=}\n{self.MSn=}\n{self.MSe=}\n{self.F=}"
-
-    @property
-    def fmt(self):
-        return f"ANOVA Result\n{self.SSTn:.2f}\t{self.n-1}\t{self.MSn:.2f}\t{self.F:.2f}\n{self.SSE:.2f}\t{self.k*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
-
-class ANOVABlock(ANOVA):
-    """ANOVA class for two-way ANOVA (block)"""
-    def __init__(self,data :NDArray[np.float64]):
-        """Initialize ANOVABlock
-
-        Args:
-            data (NDArray): 2D array of data
-
-        Raises:
-            ValueError: If data is not 2D
-        """
-        super().__init__(data)
-        self.sumk = np.sum(data,axis=0)
-        self.SSTk = sum(self.sumk**2)/self.k-self.sum**2/self.N
-        self.SSE = self.SST-self.SSTn-self.SSTk
-        self.MSk = self.SSTk/(self.n-1)
-        self.MSe = self.SSE/((self.k-1)*(self.n-1))
-        self.F0 = self.MSn/self.MSe
-        self.F1 = self.MSk/self.MSe
-
-
-    def __repr__(self):
-        return f"ANOVABlock({self.data})"
-
-    @property
-    def result(self) -> str:
-        return f"ANOVABlock Result {self.k=}\n{self.n=}\n{self.N=}\n{self.sum=}\n{self.sumn=}\n{self.sum2=}\n{self.SST=}\n{self.SSTn=}\n{self.sumk=}\n{self.SSTk=}\n{self.SSE=}\n{self.MSn=}\n{self.MSk=}\n{self.MSe=}\n{self.F0=}\n{self.F1=}"
-
-    @property
-    def fmt(self):
-        return f"ANOVABlock Result\n{self.SSTn:.2f}\t{self.k-1}\t{self.MSn:.2f}\t{self.F0:.2f}\n{self.SSTk:.2f}\t{self.n-1}\t{self.MSk:.2f}\t{self.F1:.2f}\n{self.SSE:.2f}\t{(self.k-1)*(self.n-1)}\t{self.MSe:.2f}\n{self.SST:.2f}\t{self.N-1}"
-
-class ANOVA2:
-    """ANOVA class for two-way ANOVA (factorial)"""
-    def __init__(self,data :NDArray[np.float64]):
-        """Initialize ANOVA2
-
-        Args:
-            data (NDArray): 3D array of data
-
-        Raises:
-            ValueError: If data is not 3D
-        """
-        self.data = data
-        self.process()
-        
-    def process(self):
-        data=self.data
-        self.i=len(data)
-        self.j=len(data[0])
-        self.k=len(data[0][0])
-        self.gsum = np.sum(data)
-        self.sumi = np.sum(data,axis=(1,2))
-        self.sumj = np.sum(data,axis=(0,2))
-        self.sumij = np.sum(data,axis=2)
-        self.SSt = np.sum(data**2)-self.gsum**2/(self.i*self.j*self.k)
-        self.SSa = np.sum(self.sumi**2)/self.j/self.k-self.gsum**2/(self.i*self.j*self.k)
-        self.SSb = np.sum(self.sumj**2)/self.i/self.k-self.gsum**2/(self.i*self.j*self.k)
-        self.SSsub = np.sum(self.sumij**2)/self.k-self.gsum**2/(self.i*self.j*self.k)
-        self.SSab = self.SSsub-self.SSa-self.SSb
-        self.SSe = self.SSt-self.SSa-self.SSb-self.SSab
-        self.MSa = self.SSa/(self.i-1)
-        self.MSb = self.SSb/(self.j-1)
-        self.MSab = self.SSab/(self.i-1)/(self.j-1)
-        self.MSe = self.SSe/(self.i*self.j*(self.k-1))
-        self.Fa = self.MSa/self.MSe
-        self.Fb = self.MSb/self.MSe
-        self.Fab = self.MSab/self.MSe
-
-    def __repr__(self):
-        return f"ANOVA2({self.data})"
-
-    @property
-    def result(self) -> str:
-        return f"ANOVA2 Result {self.i=}\n{self.j=}\n{self.k=}\n{self.gsum=}\n{self.sumi=}\n{self.sumj=}\n{self.sumij=}\n{self.SSt=}\n{self.SSa=}\n{self.SSb=}\n{self.SSsub=}\n{self.SSab=}\n{self.SSe=}\n{self.MSa=}\n{self.MSb=}\n{self.MSab=}\n{self.MSe=}"
-
-    @property
-    def fmt(self):
-        return f"ANOVA2 Result\n{self.SSa:.2f}\t{self.i-1}\t{self.MSa:.2f}\t{self.Fa:.2f}\n{self.SSb:.2f}\t{self.j-1}\t{self.MSb:.2f}\t{self.Fb:.2f}\n{self.SSab:.2f}\t{(self.i-1)*(self.j-1)}\t{self.MSab:.2f}\t{self.Fab:.2f}\n{self.SSe:.2f}\t{(self.i*self.j)*(self.k-1)}\t{self.MSe:.2f}\n{self.SSt:.2f}\t{(self.i)*(self.j)*(self.k)-1}"
-        
