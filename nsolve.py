@@ -16,5 +16,6 @@ def invFuncSolve(func:Callable[[number],number],y:number,start:number=1,err:numb
             print("(f(x+err)-f(x)):", func(x+err)-func(x),file=stderr)
             print("(f(x+err)-f(x))/err:", (func(x+err)-func(x))/err,file=stderr)
             print("Delta x:", -(func(x)-y)/((func(x+err)-func(x))/err),file=stderr)
+            print("",file=stderr)
         x = x - (func(x)-y)/((func(x+err)-func(x))/err)
     return x
