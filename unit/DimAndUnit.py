@@ -1,5 +1,5 @@
 import sys
-from typing import Literal, Union
+from typing import Literal, Union, overload
 from ..typedef import *
 from ..stats import freq
 
@@ -250,6 +250,12 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension):
     def __eq__(self, o: "CompoundBaseUnit"):
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim) and self.mul==o.mul and self.offset==o.offset
 
+    @overload
+    def __rmul__(self, o: number) -> "Value":
+        ...
+    @overload
+    def __rmul__(self, o: CompoundUnitResolvables) -> "CompoundUnit":
+        ...
     def __rmul__(self, o: CompoundUnitResolvables|number) -> Union["CompoundUnit" , "Value"]:
         if isinstance(o,number):
             return Value(o,self)
