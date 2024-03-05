@@ -106,6 +106,10 @@ def cumFreq(x: list[number],mode:bool = False) -> dict[number,float]:
     else:
         return {i: len([k for k in x if k >= i])/len(x) for i in undupe(x)}
 
+def flatten(x: list[list[T]]) -> list[T]:
+    """Return flattened list"""
+    return [i for j in x for i in j]
+
 class StatData:
     """Wrapper for list to be used with statistics module"""
     data:list[number]
