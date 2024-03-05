@@ -1,6 +1,14 @@
-from .DimAndUnit import BaseUnit, CompoundDimension, CompoundUnit,Dimension,Unit, prefix
+from .DimAndUnit import BaseUnit, CompoundDimension, CompoundUnit,Dimension,Unit, prefix,BaseDim,generic,BaseDIM
 
 #Sync with DimeAndUnit.py
+
+TIME = Dimension("T")
+LENGTH = Dimension("L")
+MASS = Dimension("M")
+TEMP = Dimension("H")
+MOL = Dimension("N")
+CURRENT = Dimension("I")
+LUMINOSITY = Dimension("J")
 
 sec = BaseUnit("T","Second","s")
 meter=BaseUnit("L","Meter","m")
@@ -10,7 +18,8 @@ kelvin = BaseUnit("H","Kelvin","K")
 amp = BaseUnit("I","Ampere","A")
 cd = BaseUnit("J","Candela","cd")
 
-DefaultUnit = {
+
+DefaultUnit: dict[BaseDIM,BaseUnit]  = {
     Dimension("T"):sec,
     Dimension("L"):meter,
     Dimension("M"):kilogram,
@@ -69,107 +78,107 @@ zepto = prefix("zepto","z",-21)
 yocto = prefix("yocto","y",-24)
 #Compound Units
 
-DimLes = CompoundUnit([],[],"","",1)
+DimLes = CompoundUnit((),(),"","",1)
 
 #Speed
-meterPerSecond = CompoundUnit([meter],[sec],"meter/sec","m/s",1)
-kilometerPerHour = CompoundUnit([meter],[hour],"kilometer/hour","km/h",1/3.6)
-milesPerHour = CompoundUnit([miles],[hour],"miles/hour","mph",1/2.237)
+meterPerSecond = CompoundUnit((meter,),(sec,),"meter/sec","m/s",1)
+kilometerPerHour = CompoundUnit((meter,),(hour,),"kilometer/hour","km/h",1/3.6)
+milesPerHour = CompoundUnit((miles,),(hour,),"miles/hour","mph",1/2.237)
 
 #Acceleration
-meterPerSecondSquared = CompoundUnit([meter],[sec,sec],"meter/sec^2","m/s.s",1)
-kilometerPerHourSquared = CompoundUnit([meter],[hour,hour],"kilometer/hour^2","km/hr.hr",1/1.944**2)
+meterPerSecondSquared = CompoundUnit((meter,),(sec,sec),"meter/sec^2","m/s.s",1)
+kilometerPerHourSquared = CompoundUnit((meter,),(hour,hour),"kilometer/hour^2","km/hr.hr",1/1.944**2)
 
 #Area
-squareMeter = CompoundUnit([meter,meter],[],"square meter","m.m",1)
-squareKilometer = CompoundUnit([meter,meter],[],"square kilometer","m.km",1e6)
-squareMiles = CompoundUnit([miles,miles],[],"square miles","mi.mi",2.58999e6)
-squareYard = CompoundUnit([yard,yard],[],"square yard","yd.yd",0.836127)
-squareFoot = CompoundUnit([foot,foot],[],"square foot","ft.ft",0.09290304)
-squareInch = CompoundUnit([inch,inch],[],"square inch","in.in",0.00064516)
-acre = CompoundUnit([meter,meter],[],"acre","acre",4046.8564224)
-hectre = CompoundUnit([meter,meter],[],"hectre","hectre",1e4)
-วา = CompoundUnit([meter,meter],[],"วา","วา",4)
-ไร่ = CompoundUnit([meter,meter],[],"ไร่","ไร่",1600)
-งาน = CompoundUnit([meter,meter],[],"งาน","งาน",400)
-darcy = CompoundUnit([meter,meter],[],"darcy","darcy",9.869233e-13)
+squareMeter = CompoundUnit((meter,meter),(),"square meter","m.m",1)
+squareKilometer = CompoundUnit((meter,meter),(),"square kilometer","m.km",1e6)
+squareMiles = CompoundUnit((miles,miles),(),"square miles","mi.mi",2.58999e6)
+squareYard = CompoundUnit((yard,yard),(),"square yard","yd.yd",0.836127)
+squareFoot = CompoundUnit((foot,foot),(),"square foot","ft.ft",0.09290304)
+squareInch = CompoundUnit((inch,inch),(),"square inch","in.in",0.00064516)
+acre = CompoundUnit((meter,meter),(),"acre","acre",4046.8564224)
+hectre = CompoundUnit((meter,meter),(),"hectre","hectre",1e4)
+วา = CompoundUnit((meter,meter),(),"วา","วา",4)
+ไร่ = CompoundUnit((meter,meter),(),"ไร่","ไร่",1600)
+งาน = CompoundUnit((meter,meter),(),"งาน","งาน",400)
+darcy = CompoundUnit((meter,meter),(),"darcy","darcy",9.869233e-13)
 
 #Volume
-liter = CompoundUnit([meter,meter,meter],[],"liter","l",1e-3)
-cubicMeter = CompoundUnit([meter,meter,meter],[],"cubic meter","m.m.m",1)
-gallon = CompoundUnit([meter,meter,meter],[],"gallon","gal",0.0037854118)
-cubicFoot = CompoundUnit([foot,foot,foot],[],"cubic foot","ft.ft.ft",0.028316846592)
-cubicInch = CompoundUnit([inch,inch,inch],[],"cubic inch","in.in.in",0.000016387064)
-fluidOunce = CompoundUnit([inch,inch,inch],[],"fluid ounce","fl.oz",0.0000295735295625)
-cup = CompoundUnit([inch,inch,inch],[],"cup","cup",0.0002365882365)
-pint = CompoundUnit([inch,inch,inch],[],"pint","pt",0.000473176473)
-quart = CompoundUnit([inch,inch,inch],[],"quart","qt",0.000946352946)
-cc = CompoundUnit([inch,inch,inch],[],"CC","CC",0.001)
+liter = CompoundUnit((meter,meter,meter),(),"liter","l",1e-3)
+cubicMeter = CompoundUnit((meter,meter,meter),(),"cubic meter","m.m.m",1)
+gallon = CompoundUnit((meter,meter,meter),(),"gallon","gal",0.0037854118)
+cubicFoot = CompoundUnit((foot,foot,foot),(),"cubic foot","ft.ft.ft",0.028316846592)
+cubicInch = CompoundUnit((inch,inch,inch),(),"cubic inch","in.in.in",0.000016387064)
+fluidOunce = CompoundUnit((inch,inch,inch),(),"fluid ounce","fl.oz",0.0000295735295625)
+cup = CompoundUnit((inch,inch,inch),(),"cup","cup",0.0002365882365)
+pint = CompoundUnit((inch,inch,inch),(),"pint","pt",0.000473176473)
+quart = CompoundUnit((inch,inch,inch),(),"quart","qt",0.000946352946)
+cc = CompoundUnit((inch,inch,inch),(),"CC","CC",0.001)
 
 #Density
-kilogramPerCubicMeter = CompoundUnit([kilogram],[meter,meter,meter],"kilogram/cubic meter","kg/m.m.m",1)
-gramPerCubicMeter = CompoundUnit([gram],[meter,meter,meter],"gram/cubic meter","g/m.m.m",1e-3)
-poundPerCubicFoot = CompoundUnit([pound],[foot,foot,foot],"pound/cubic foot","lbm/ft.ft.ft",16.01846337)
-poundPerCubicInch = CompoundUnit([pound],[inch,inch,inch],"pound/cubic inch","lbm/in.in.in",27679.9047)
-gramPerCc = CompoundUnit([gram],[inch,inch,inch],"gram/cc","g/cc",1000)
-kilogramPerLiter = CompoundUnit([kilogram],[meter,meter,meter],"kilogram/liter","kg/l",1e3)
-gramPerLiter = CompoundUnit([gram],[meter,meter,meter],"gram/liter","g/l",1)
+kilogramPerCubicMeter = CompoundUnit((kilogram,),(meter,meter,meter),"kilogram/cubic meter","kg/m.m.m",1)
+gramPerCubicMeter = CompoundUnit((gram,),(meter,meter,meter),"gram/cubic meter","g/m.m.m",1e-3)
+poundPerCubicFoot = CompoundUnit((pound,),(foot,foot,foot),"pound/cubic foot","lbm/ft.ft.ft",16.01846337)
+poundPerCubicInch = CompoundUnit((pound,),(inch,inch,inch),"pound/cubic inch","lbm/in.in.in",27679.9047)
+gramPerCc = CompoundUnit((gram,),(inch,inch,inch),"gram/cc","g/cc",1000)
+kilogramPerLiter = CompoundUnit((kilogram,),(meter,meter,meter),"kilogram/liter","kg/l",1e3)
+gramPerLiter = CompoundUnit((gram,),(meter,meter,meter),"gram/liter","g/l",1)
 
 #Force
-newton = CompoundUnit([kilogram,meter],[sec,sec],"newton","N",1)
-dyne = CompoundUnit([kilogram,meter],[sec,sec],"dyne","dyn",1e-5)
-poundForce = CompoundUnit([pound,foot],[sec,sec],"pound force","lbf",4.4482216152605)
+newton = CompoundUnit((kilogram,meter),(sec,sec),"newton","N",1)
+dyne = CompoundUnit((kilogram,meter),(sec,sec),"dyne","dyn",1e-5)
+poundForce = CompoundUnit((pound,foot),(sec,sec),"pound force","lbf",4.4482216152605)
 
 #Pressure
-pascal = CompoundUnit([kilogram],[meter,sec,sec],"pascal","Pa",1)
-bar = CompoundUnit([kilogram],[meter,sec,sec],"bar","bar",1e5)
-atm = CompoundUnit([kilogram],[meter,sec,sec],"atmosphere","atm",101325)
-psi = CompoundUnit([kilogram],[meter,sec,sec],"pound/square inch","psi",6894.757293168)
-mmHg = CompoundUnit([kilogram],[meter,sec,sec],"millimeter of mercury","mmHg",133.322)
-torr = CompoundUnit([kilogram],[meter,sec,sec],"torr","torr",133.322)
+pascal = CompoundUnit((kilogram,),(meter,sec,sec),"pascal","Pa",1)
+bar = CompoundUnit((kilogram,),(meter,sec,sec),"bar","bar",1e5)
+atm = CompoundUnit((kilogram,),(meter,sec,sec),"atmosphere","atm",101325)
+psi = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square inch","psi",6894.757293168)
+mmHg = CompoundUnit((kilogram,),(meter,sec,sec),"millimeter of mercury","mmHg",133.322)
+torr = CompoundUnit((kilogram,),(meter,sec,sec),"torr","torr",133.322)
 
 #Energy
-joule = CompoundUnit([kilogram,meter,meter],[sec,sec],"joule","J",1)
-eV = CompoundUnit([kilogram,meter,meter],[sec,sec],"electron volt","eV",1.602176634e-19)
-kWh = CompoundUnit([kilogram,meter,meter],[sec,sec],"kilowatt hour","kWh",3600000)
-calorie = CompoundUnit([kilogram,meter,meter],[sec,sec],"calorie","cal",4.1868)
-btu = CompoundUnit([kilogram,meter,meter],[sec,sec],"British thermal unit","btu",1055.05585262)
+joule = CompoundUnit((kilogram,meter,meter),(sec,sec),"joule","J",1)
+eV = CompoundUnit((kilogram,meter,meter),(sec,sec),"electron volt","eV",1.602176634e-19)
+kWh = CompoundUnit((kilogram,meter,meter),(sec,sec),"kilowatt hour","kWh",3600000)
+calorie = CompoundUnit((kilogram,meter,meter),(sec,sec),"calorie","cal",4.1868)
+btu = CompoundUnit((kilogram,meter,meter),(sec,sec),"British thermal unit","btu",1055.05585262)
 
 #Energy Density
-joulePerKilogram = CompoundUnit([meter,meter],[sec,sec],"joule/kilogram","J/kg",1)
-btuPerPound = CompoundUnit([foot,foot],[sec,sec],"British thermal unit/pound","btu/lbm",2326)
-caloriePerGram = CompoundUnit([meter,meter],[sec,sec],"calorie/gram","cal/g",4186.8)
+joulePerKilogram = CompoundUnit((meter,meter),(sec,sec),"joule/kilogram","J/kg",1)
+btuPerPound = CompoundUnit((foot,foot),(sec,sec),"British thermal unit/pound","btu/lbm",2326)
+caloriePerGram = CompoundUnit((meter,meter),(sec,sec),"calorie/gram","cal/g",4186.8)
 
 #Power
-watt = CompoundUnit([kilogram,meter,meter],[sec,sec,sec],"watt","W",1)
-horsepower = CompoundUnit([kilogram,meter,meter],[sec,sec,sec],"horsepower","hp",745.699871582270)
+watt = CompoundUnit((kilogram,meter,meter),(sec,sec,sec),"watt","W",1)
+horsepower = CompoundUnit((kilogram,meter,meter),(sec,sec,sec),"horsepower","hp",745.699871582270)
 
 #Charge
-coulomb = CompoundUnit([amp,sec],[],"coulomb","C",1)
-faraday = CompoundUnit([amp,sec],[],"faraday","F",96485.3399)
-electron = CompoundUnit([amp,sec],[],"electron charge","e",1.602176634e-19)
+coulomb = CompoundUnit((amp,sec),(),"coulomb","C",1)
+faraday = CompoundUnit((amp,sec),(),"faraday","F",96485.3399)
+electron = CompoundUnit((amp,sec),(),"electron charge","e",1.602176634e-19)
 
 #Electric Potential
-volt = CompoundUnit([kilogram,meter,meter],[sec,sec,sec,amp],"volt","V",1)
+volt = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp),"volt","V",1)
 
 #Electric Field
-voltPerMeter = CompoundUnit([kilogram,meter],[sec,sec,sec,amp],"volt/meter","V/m",1)
+voltPerMeter = CompoundUnit((kilogram,meter),(sec,sec,sec,amp),"volt/meter","V/m",1)
 
 #Chemical.14
-amu = CompoundUnit([kilogram],[],"atomic mass unit","amu",1.66053906660e-27)
-gpm = CompoundUnit([kilogram],[mol],"gram per mole","gpm",1e-3)
+amu = CompoundUnit((kilogram,),(),"atomic mass unit","amu",1.66053906660e-27)
+gpm = CompoundUnit((kilogram,),(mol,),"gram per mole","gpm",1e-3)
 
 #Viscosity
-poise = CompoundUnit([kilogram],[meter,sec],"poise","P",0.1)
-pascalSecond = CompoundUnit([kilogram],[meter,sec],"pascal second","Pa.s",1)
-centipoise = CompoundUnit([kilogram],[meter,sec],"centipoise","cP",1e-3)
-micropoise = CompoundUnit([kilogram],[meter,sec],"micropoise","uP",1e-7)
-millipoise = CompoundUnit([kilogram],[meter,sec],"millipoise","mP",1e-4)
+poise = CompoundUnit((kilogram,),(meter,sec),"poise","P",0.1)
+pascalSecond = CompoundUnit((kilogram,),(meter,sec),"pascal second","Pa.s",1)
+centipoise = CompoundUnit((kilogram,),(meter,sec),"centipoise","cP",1e-3)
+micropoise = CompoundUnit((kilogram,),(meter,sec),"micropoise","uP",1e-7)
+millipoise = CompoundUnit((kilogram,),(meter,sec),"millipoise","mP",1e-4)
 
 #Mass Diffusivity
-sqfPs = CompoundUnit([meter,meter],[sec],"square foot per second","ft.ft/s",0.09290304)
-sqmPs = CompoundUnit([meter,meter],[sec],"square meter per second","m.m/s",1)
-sqcmPs = CompoundUnit([meter,meter],[sec],"square centimeter per second","cm.cm/s",1e-4)
+sqfPs = CompoundUnit((meter,meter),(sec,),"square foot per second","ft.ft/s",0.09290304)
+sqmPs = CompoundUnit((meter,meter),(sec,),"square meter per second","m.m/s",1)
+sqcmPs = CompoundUnit((meter,meter),(sec,),"square centimeter per second","cm.cm/s",1e-4)
 
 DefaultCompoundUnit = {
     Dimension("T"):sec,
@@ -179,19 +188,19 @@ DefaultCompoundUnit = {
     Dimension("H"):kelvin,
     Dimension("I"):amp,
     Dimension("J"):cd,
-    CompoundDimension([],[]):DimLes,
-    CompoundDimension(["L"],["T"]):meterPerSecond, #Speed
-    CompoundDimension(["L"],["T","T"]):meterPerSecondSquared,#Acceleration
-    CompoundDimension(["L","L"],[]):squareMeter,#Area
-    CompoundDimension(["L","L","L"],[]):cubicMeter,#Volume
-    CompoundDimension(["M"],["L","L","L"]):gramPerCubicMeter,#Density
-    CompoundDimension(["L","M"],["T","T"]):newton,#Force
-    CompoundDimension(["M"],["L","T","T"]):pascal,#Pressure
-    CompoundDimension(["M","L","L"],["T","T"]):joule,#Energy
-    CompoundDimension(["M","L","L"],["T","T","T"]):watt,#Power
-    CompoundDimension(["I","T"],[]):coulomb,#Charge
-    CompoundDimension(["M","L","L"],["T","T","T","I"]):volt,#Electric Potential
-    CompoundDimension(["M","L"],["T","T","T","I"]):voltPerMeter,#Electric Field
-    CompoundDimension(["M"],["N"]):amu,#Chemical
-    CompoundDimension(["L","L"],["T"]):sqmPs,#Mass Diffusivity
+    CompoundDimension((),()):DimLes,
+    CompoundDimension((LENGTH,),(TIME,)):meterPerSecond, #Speed
+    CompoundDimension((LENGTH,),(TIME,TIME)):meterPerSecondSquared,#Acceleration
+    CompoundDimension((LENGTH,LENGTH),()):squareMeter,#Area
+    CompoundDimension((LENGTH,LENGTH,LENGTH),()):cubicMeter,#Volume
+    CompoundDimension((MASS,),(LENGTH,LENGTH,LENGTH)):gramPerCubicMeter,#Density
+    CompoundDimension((LENGTH,MASS),(TIME,TIME)):newton,#Force
+    CompoundDimension((MASS,),(LENGTH,TIME,TIME)):pascal,#Pressure
+    CompoundDimension((MASS,LENGTH,LENGTH),(TIME,TIME)):joule,#Energy
+    CompoundDimension((MASS,LENGTH,LENGTH),(TIME,TIME,TIME)):watt,#Power
+    CompoundDimension((CURRENT,TIME),()):coulomb,#Charge
+    CompoundDimension((MASS,LENGTH,LENGTH),(TIME,TIME,TIME,CURRENT)):volt,#Electric Potential
+    CompoundDimension((MASS,LENGTH),(TIME,TIME,TIME,CURRENT)):voltPerMeter,#Electric Field
+    CompoundDimension((MASS,),(MOL,)):amu,#Chemical
+    CompoundDimension((LENGTH,LENGTH),(TIME,)):sqmPs,#Mass Diffusivity
 }
