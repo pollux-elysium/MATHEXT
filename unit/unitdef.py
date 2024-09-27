@@ -1,4 +1,4 @@
-from .DimAndUnit import BaseUnit, CompoundDimension, CompoundUnit,Dimension,Unit, prefix,BaseDim,generic,BaseDIM
+from .DimAndUnit import BaseUnit, CompoundDimension, CompoundUnit,Dimension,Unit, prefix,BaseDim,BaseDIM
 
 #Sync with DimeAndUnit.py
 
@@ -40,6 +40,8 @@ lbm = pound = Unit("M","pound","lbm",.45359237)
 ounce = Unit("M","ounce","oz",.028349523125)
 gram = Unit("M","gram","g",.001)
 ton = Unit("M","metricTon","ton",1000)
+dalton = Unit("M","dalton","Da",1.66053906660e-27)
+electronMass = Unit("M","electronMass","me",9.10938356e-31)
 
 #TIME
 minutes = Unit("T","minutes","min",60)
@@ -113,7 +115,7 @@ fluidOunce = CompoundUnit((inch,inch,inch),(),"fluid ounce","fl.oz",0.0000295735
 cup = CompoundUnit((inch,inch,inch),(),"cup","cup",0.0002365882365)
 pint = CompoundUnit((inch,inch,inch),(),"pint","pt",0.000473176473)
 quart = CompoundUnit((inch,inch,inch),(),"quart","qt",0.000946352946)
-cc = CompoundUnit((inch,inch,inch),(),"CC","CC",0.001)
+cc = CompoundUnit((inch,inch,inch),(),"CC","CC",1e-6)
 
 #Density
 kilogramPerCubicMeter = CompoundUnit((kilogram,),(meter,meter,meter),"kilogram/cubic meter","kg/m.m.m",1)
@@ -128,12 +130,15 @@ gramPerLiter = CompoundUnit((gram,),(meter,meter,meter),"gram/liter","g/l",1)
 newton = CompoundUnit((kilogram,meter),(sec,sec),"newton","N",1)
 dyne = CompoundUnit((kilogram,meter),(sec,sec),"dyne","dyn",1e-5)
 poundForce = CompoundUnit((pound,foot),(sec,sec),"pound force","lbf",4.4482216152605)
+kgf=kilogramForce = CompoundUnit((gram,meter),(sec,sec),"kilogram force","kgf",9.80665)
+gf=gramForce = CompoundUnit((gram,meter),(sec,sec),"gram force","gf",9.80665e-3)
 
 #Pressure
 pascal = CompoundUnit((kilogram,),(meter,sec,sec),"pascal","Pa",1)
 bar = CompoundUnit((kilogram,),(meter,sec,sec),"bar","bar",1e5)
 atm = CompoundUnit((kilogram,),(meter,sec,sec),"atmosphere","atm",101325)
 psi = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square inch","psi",6894.757293168)
+ksi = CompoundUnit((kilogram,),(meter,sec,sec),"kilopound/square inch","ksi",6894757.293168)
 mmHg = CompoundUnit((kilogram,),(meter,sec,sec),"millimeter of mercury","mmHg",133.322)
 torr = CompoundUnit((kilogram,),(meter,sec,sec),"torr","torr",133.322)
 
