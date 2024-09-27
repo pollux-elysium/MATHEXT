@@ -22,7 +22,7 @@ class ANOVA:
         self.sumn = np.sum(data,axis=1)
         self.sum2 = np.sum(data**2)
         self.SST = self.sum2-self.sum**2/self.N
-        self.SSTn = sum(self.sumn**2)/self.n-self.sum**2/self.N
+        self.SSTn = np.sum(self.sumn**2)/self.n-self.sum**2/self.N
         self.SSE = self.SST-self.SSTn
         self.MSn = self.SSTn/(self.k-1)
         self.MSe = self.SSE/(self.k*(self.n-1))

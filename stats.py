@@ -51,7 +51,7 @@ def freq(x: list[T]) -> dict[T, int]:
     Returns:
         dict: Frequency of each item in list x
     """
-    return {i: x.count(i)for i in undupe(x)}
+    return {i: x.count(i)for i in undupe(x,False)}
     
 
 
@@ -68,9 +68,9 @@ def tree(x: list[number],sep:int=10):
     j= undupe([int(i//sep) for i in x])
     return {i: [k for k in x if k//sep == i]for i in j}
 
-def undupe(x: list[T]) -> list[T]:
+def undupe(x: list[T],preserve_order=True) -> list[T]:
     """Return list with duplicates removed"""
-    return list(dict.fromkeys(x))
+    return list(dict.fromkeys(x)) if preserve_order else list(set(x))
 
 def iqr(x: list[float|int]) -> float:
     """Return interquartile range of list x"""
@@ -105,6 +105,28 @@ def cumFreq(x: list[number],mode:bool = False) -> dict[number,float]:
         return {i: len([k for k in x if k <= i])/len(x) for i in undupe(x)}
     else:
         return {i: len([k for k in x if k >= i])/len(x) for i in undupe(x)}
+
+def flatten(x: list[list[T]]) -> list[T]:
+    """Return flattened list"""
+    return [i for j in x for i in j]
+
+def freqDen(x:list[number])->dict[number,float]:
+    """Return frequency density of list x"""
+    return {i:x.count(i)/len(x) for i in undupe(x)}
+
+def freqDenPlot(x:list[number]|dict[number,float])->dict[number,float]:
+    """Return frequency density for visual plotting"""
+    if isinstance(x,dict):
+        sort = {i:x[i] for i in sorted(x)}
+        nums = list(sort.keys())
+        key = [nums[0],*[(nums[i]+nums[i+1])/2 for i in range(len(nums)-1)],nums[-1]]
+        return {i:sort[nums[i]]/abs(key[i+1]-key[i]) for i in range(len(nums))}
+    elif isinstance(x,list):
+        sort = freqDen(x)
+        sort = {i:sort[i] for i in sorted(sort)}
+        nums = list(sort.keys())
+        key = [nums[0],*[(nums[i]+nums[i+1])/2 for i in range(len(nums)-1)],nums[-1]]
+        return {nums[i]:sort[nums[i]]/abs(key[i+1]-key[i]) for i in range(len(nums))}
 
 class StatData:
     """Wrapper for list to be used with statistics module"""
