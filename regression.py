@@ -152,7 +152,7 @@ class LinReg(Reg):
     def lot(n:list[tuple[number,number]]):
         return LinReg(Reg.lot(n))
 
-    @property
+    @cached_property
     def solArray(self):
         return AugMat(np.array([[sum(mul(self.x,self.x)),sum(self.x)]
         ,[sum(self.x),len(self.x)]]),
@@ -313,7 +313,7 @@ class CubReg(Reg):
 class ExpReg(Reg):
     """Exponential Regression class.
     
-    In the form y = e^(bx)."""
+    In the form y = ae^(bx)."""
 
     def __repr__(self) -> str:
         return f"{self.x=}\n{self.fx=}\ny~{self.a}e^({self.b}x)"
