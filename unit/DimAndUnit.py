@@ -34,6 +34,8 @@ def resolveDim(i:"Dimension[D]")->"Dimension[D]":
 def resolveDim(i:D)->"Dimension[D]":
     ...
 def resolveDim(i:"Dimension[D]"|D) -> "Dimension[D]":
+    if type(i) == Dimension:
+        return i
     if isinstance(i,Dimension):
         return Dimension(i.dim)
     elif isinstance(i,str):
@@ -61,16 +63,18 @@ def resolveCompoundDim(i:"CompoundDimension[DsN,DsD] | Dimension[D] "):
         raise TypeError("Not resolvable to compound dimension")
 
 @overload
-def resolveCompoundUnit(i:"CompoundBaseUnit[DsN,DsD]")->"CompoundBaseUnit[DsN,DsD]":
+def resolveCompoundUnit(i:"CompoundBaseUnit[DsN,DsD] | Value[DsN,DsD]")->"CompoundBaseUnit[DsN,DsD]":
     ...
 @overload
 def resolveCompoundUnit(i:"BaseUnit[D]")->"CompoundUnit[tuple[Dimension[D]],tuple[()]]":
     ...
-def resolveCompoundUnit(i:"CompoundBaseUnit[DsN,DsD] | BaseUnit[D]") -> "CompoundBaseUnit[DsN,DsD]|CompoundUnit[tuple[Dimension[D]],tuple[()]]":
+def resolveCompoundUnit(i:"CompoundBaseUnit[DsN,DsD] | BaseUnit[D] | Value[DsN,DsD]") -> "CompoundBaseUnit[DsN,DsD]|CompoundUnit[tuple[Dimension[D]],tuple[()]]":
     if isinstance(i,CompoundBaseUnit):
         return i
+    elif isinstance(i,Value):
+        return resolveCompoundUnit(i.unit)
     elif isinstance(i,BaseUnit):
-        return CompoundUnit((resolveDim(i.dim),),(),i.name,i.symbol,i.mul,i.offset)
+        return CompoundUnit((Dimension(i.dim),),(),i.name,i.symbol,i.mul,i.offset)
     else:
         raise TypeError("Not resolvable to compound unit")
 
@@ -114,9 +118,10 @@ class Dimension(Generic[D]):
         return hash(self.dim)
 
     def __eq__(self, o:"Dimension[D1]"):
+        if type(o)==Dimension:
+            return self.dim == o.dim
         dim: D1=resolveDim(o).dim
-        if self.dim == dim :return True
-        else:return False
+        return self.dim == dim  
 
     def __mul__(self, o:"Dimension[D1]") -> "CompoundDimension[tuple[Dimension[D],Dimension[D1]],tuple[()]]":
         o=resolveDim(o)
@@ -317,7 +322,9 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension[DsN,DsD]):
         self.mul=mul
         self.symbol=symbol
         self.offset=offset
-        self.baseSymbol = f'{".".join(DefaultUnit[i].symbol for i in self.numerator)}/{".".join(DefaultUnit[i].symbol for i in self.denominator)}'
+    
+    @property
+    def baseSymbol(self) :return f'{".".join(DefaultUnit[i].symbol for i in self.numerator)}/{".".join(DefaultUnit[i].symbol for i in self.denominator)}'
 
     def __repr__(self) -> str:
         return f"{[i.dim for i in self.numerator]}/{[i.dim for i in self.denominator]} : {self.name} = {self.mul} {parseSymbol(self.baseSymbol)} {self.offset:+.4}"
@@ -353,6 +360,9 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension[DsN,DsD]):
     def __eq__(self, o: "CompoundBaseUnit"):
         return sorted(self.numerator,key = lambda x:x.dim)==sorted(o.numerator,key = lambda x:x.dim) and sorted(self.denominator,key = lambda x:x.dim)==sorted(o.denominator,key = lambda x:x.dim) and self.mul==o.mul and self.offset==o.offset
 
+    def __hash__(self) -> int:
+        return hash((self.numerator,self.denominator,self.mul,self.offset))
+
     @overload
     def __rmul__(self, o: number) -> "Value[DsN,DsD]":
         ...
@@ -365,6 +375,20 @@ class CompoundBaseUnit(BaseUnit,CompoundDimension[DsN,DsD]):
         else:
             o=resolveCompoundUnit(o)
             return CompoundUnit(self.numerator+o.numerator,self.denominator+o.denominator,self.name + "*" + o.name,self.symbol+"."+o.symbol,self.mul,self.offset) 
+        
+    @overload
+    def __rtruediv__(self, o: number) -> "Value[DsD,DsN]":
+        ...
+    @overload
+    def __rtruediv__(self, o: "CompoundBaseUnit[Ds1N,Ds1D]"):
+        ...
+    def __rtruediv__(self, o: "CompoundBaseUnit[Ds1N,Ds1D]|number") :
+        if isinstance(o,number):
+            return Value(o,CompoundUnit(self.denominator,self.numerator,self.name,self.symbol,1/self.mul,-self.offset/self.mul))
+        else:
+            o=resolveCompoundUnit(o)
+            return CompoundUnit(self.denominator+o.numerator,self.numerator+o.denominator,o.name + "/" + self.name,o.symbol+"/"+self.symbol,o.mul/self.mul,-self.offset/o.mul)
+        
 
 class CompoundUnit(CompoundBaseUnit[DsN,DsD]):
     pass
@@ -392,7 +416,6 @@ class Value(Generic[DsN,DsD]):
         self.value=value
         resunit = resolveCompoundUnit(unit)
         self.unit=resunit
-        self.__doc__ = str([self.unit.numerator,self.unit.denominator])
 
     def __repr__(self) -> str:
         return f"{self.value} {self.unit.symbol}"
@@ -437,19 +460,51 @@ class Value(Generic[DsN,DsD]):
         if isinstance(o,Value):
             return Value(o.value/self.value,o.unit/self.unit)
         elif isinstance(o,number):
-            return o/self
+            return Value(o/self.value,CompoundUnit(self.unit.denominator,self.unit.numerator,"/"+self.unit.name,"/"+self.unit.symbol,1/self.unit.mul,-self.unit.offset/self.unit.mul))
         elif isinstance(o,BaseUnit):
             return Value(self.value,resolveCompoundUnit(o)/self.unit)
 
-    def __add__(self, o: "Value[DsN,DsD]") -> "Value[DsN,DsD]":
-        if self.unit == o.unit:
+    def __add__(self, o: "Value[DsN,DsD] | number"  ) -> "Value[DsN,DsD]":
+        if isinstance(o,number) and self.unit.sameDim(DimLes):
+            return Value(self.to(DimLes).value+o,self.unit)
+        if isinstance(o,number):
+            raise Exception("Unit mismatch")
+        elif self.unit == o.unit:
+            return Value(self.value+o.value,self.unit)
+        elif self.unit.sameDim(o.unit):
+            return Value(self.value + ((o.value-o.unit.offset)*o.unit.mul/self.unit.mul +self.unit.offset),self.unit)
+        else:
+            raise Exception("Unit mismatch")
+        
+    def __radd__(self, o: "Value[DsN,DsD] | number"  ) -> "Value[DsN,DsD]":
+        if isinstance(o,number) and self.unit.sameDim(DimLes):
+            return Value(self.to(DimLes)+o,self.unit)
+        if isinstance(o,number):
+            raise Exception("Unit mismatch")
+        elif self.unit == o.unit:
             return Value(self.value+o.value,self.unit)
         elif self.unit.sameDim(o.unit):
             return Value(self.value + ((o.value-o.unit.offset)*o.unit.mul/self.unit.mul +self.unit.offset),self.unit)
         else:
             raise Exception("Unit mismatch")
 
-    def __sub__(self, o: "Value[DsN,DsD]") -> "Value[DsN,DsD]":
+    def __sub__(self, o: "Value[DsN,DsD] | number") -> "Value[DsN,DsD]":
+        if isinstance(o,number) and self.unit.sameDim(DimLes):
+            return Value(self.to(DimLes).value-o,self.unit)
+        if isinstance(o,number):
+            raise Exception("Unit mismatch")
+        if self.unit == o.unit:
+            return Value(self.value-o.value,self.unit)
+        elif self.unit.sameDim(o.unit):
+            return Value(self.value - ((o.value-o.unit.offset)*o.unit.mul/self.unit.mul +self.unit.offset),self.unit)
+        else:
+            raise Exception("Unit mismatch")
+        
+    def __rsub__(self, o: "Value[DsN,DsD] | number") -> "Value[DsN,DsD]":
+        if isinstance(o,number) and self.unit.sameDim(DimLes):
+            return Value(o-self.to(DimLes).value,self.unit)
+        if isinstance(o,number):
+            raise Exception("Unit mismatch")
         if self.unit == o.unit:
             return Value(self.value-o.value,self.unit)
         elif self.unit.sameDim(o.unit):
@@ -462,19 +517,29 @@ class Value(Generic[DsN,DsD]):
     
     def __pow__(self, o: int) :
         return Value(self.value**o,self.unit**o)
+    
+    def __hash__(self) -> int:
+        return hash((self.value,self.unit))
 
-    def inUnit(self,unit:CompoundUnitResolvables)->"Value":
+    @overload
+    def to(self,unit:CompoundBaseUnit[Ds1N,Ds1D])->"Value[Ds1N,Ds1D]":
+        ...
+    @overload
+    def to(self,unit:BaseUnit[D1])->"Value[tuple[Dimension[D1]],tuple[()]]":
+        ...
+    def to(self,unit):
         unit=resolveCompoundUnit(unit)
-        # if self.unit == unit:
-        #     return self
         if self.unit.sameDim(unit):
+            if self.unit.mul == unit.mul and self.unit.offset == unit.offset:
+                self.unit = unit
+                return self
             return Value((self.value-self.unit.offset)*self.unit.mul/unit.mul + unit.offset,unit)
         else:
             raise Exception("Unit mismatch")
 
     @property
     def inBase(self)->"Value":
-        return self.inUnit(self.unit.base())
+        return self.to(self.unit.base())
 
     def __eq__(self, o: "Value") -> bool:
         if self.unit == o.unit:
@@ -484,7 +549,10 @@ class Value(Generic[DsN,DsD]):
         else:
             raise Exception("Unit mismatch")
 
-    to = inUnit
+    @property
+    def baseValue(self)->number:
+        return self.value*self.unit.mul+self.unit.offset
+
     toBase = inBase
 
 #Sync with unitdef.py
