@@ -166,6 +166,9 @@ electron = CompoundUnit((amp,sec),(),"electron charge","e",1.602176634e-19)
 #Electric Potential
 volt = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp),"volt","V",1)
 
+#Resistance
+ohm = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp,amp),"ohm","ohm",1)
+
 #Electric Field
 voltPerMeter = CompoundUnit((kilogram,meter),(sec,sec,sec,amp),"volt/meter","V/m",1)
 
