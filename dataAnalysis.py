@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from .typedef import *
 from typing import overload
@@ -141,3 +142,26 @@ def indexList(x: list[T])-> dict[int,T]:
     """
     return {i:x[i] for i in range(len(x))}
 
+def clampMax(x: list[number],maxVal: number = -math.inf) -> list[number]:
+    """Return list x with elements clamped to maxVal
+
+    Args:
+        x (list): List of numbers
+        maxVal (number): Maximum value
+
+    Returns:
+        list: List x with elements clamped to maxVal
+    """
+    return [(maxVal:=i) if i>maxVal else maxVal for i in x]
+
+def clampMin(x: list[number],minVal: number = math.inf) -> list[number]:
+    """Return list x with elements clamped to minVal
+
+    Args:
+        x (list): List of numbers
+        minVal (number): Minimum value
+
+    Returns:
+        list: List x with elements clamped to minVal
+    """
+    return [(minVal:=i) if i<minVal else minVal for i in x]
