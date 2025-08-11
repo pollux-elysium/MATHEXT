@@ -434,9 +434,78 @@ class v3d:
             [sin(alpha),cos(alpha),0.],
             [0.,0.,1.]])
         )@Mat(array([
-            [cos(beta),0.,sin(beta)],
+            [cos(beta),0.,-sin(beta)],
             [0,1,0],
-            [-sin(beta),0.,cos(beta)]])
+            [sin(beta),0.,cos(beta)]])
         )
         rot = rot_mat@Mat(array([self.x, self.y, self.z]).transpose())
-        return v3d(list(rot.a.transpose()))
+        return v3d(list(rot.a.transpose())) 
+    
+    def drotX(self, a: float):
+        """Rotate vector around X axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in degrees
+            
+        Returns:
+            v3d: rotated vector
+        """
+        a = rad(a)
+        return v3d(self.x, self.y*cos(a)-self.z*sin(a), self.y*sin(a)+self.z*cos(a))
+    
+    def drotY(self, a: float):
+        """Rotate vector around Y axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in degrees
+            
+        Returns:
+            v3d: rotated vector
+        """
+        a = rad(a)
+        return v3d(self.x*cos(a)+self.z*sin(a), self.y, -self.x*sin(a)+self.z*cos(a))
+    
+    def drotZ(self, a: float):
+        """Rotate vector around Z axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in degrees
+            
+        Returns:
+            v3d: rotated vector
+        """
+        a = rad(a)
+        return v3d(self.x*cos(a)-self.y*sin(a), self.x*sin(a)+self.y*cos(a), self.z)
+    
+    def rotX(self, a: float):
+        """Rotate vector around X axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in radians
+            
+        Returns:
+            v3d: rotated vector
+        """
+        return v3d(self.x, self.y*cos(a)-self.z*sin(a), self.y*sin(a)+self.z*cos(a))
+    
+    def rotY(self, a: float):
+        """Rotate vector around Y axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in radians
+            
+        Returns:
+            v3d: rotated vector
+        """
+        return v3d(self.x*cos(a)+self.z*sin(a), self.y, -self.x*sin(a)+self.z*cos(a))
+    
+    def rotZ(self, a: float):
+        """Rotate vector around Z axis, follows right hand rule with the axis as the cross product
+        
+        Args:
+            a (float): angle in radians
+            
+        Returns:
+            v3d: rotated vector
+        """
+        return v3d(self.x*cos(a)-self.y*sin(a), self.x*sin(a)+self.y*cos(a), self.z)

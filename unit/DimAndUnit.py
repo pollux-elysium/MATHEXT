@@ -591,12 +591,15 @@ inch = Unit("L","inch","in",0.0254)
 miles = Unit("L","miles","mi",1609.344)
 yard = Unit("L","yard","yd",0.9144)
 angstrom = Unit("L","angstrom","A",1e-10)
+bohr = Unit("L","bohr","bohr",5.291772108e-11)
 
 #MASS
 lbm = pound = Unit("M","pound","lbm",.45359237)
 ounce = Unit("M","ounce","oz",.028349523125)
 gram = Unit("M","gram","g",.001)
 ton = Unit("M","metricTon","ton",1000)
+dalton = Unit("M","dalton","Da",1.66053906660e-27)
+electronMass = Unit("M","electronMass","me",9.10938356e-31)
 
 #TIME
 minutes = Unit("T","minutes","min",60)
@@ -670,7 +673,7 @@ fluidOunce = CompoundUnit((inch,inch,inch),(),"fluid ounce","fl.oz",0.0000295735
 cup = CompoundUnit((inch,inch,inch),(),"cup","cup",0.0002365882365)
 pint = CompoundUnit((inch,inch,inch),(),"pint","pt",0.000473176473)
 quart = CompoundUnit((inch,inch,inch),(),"quart","qt",0.000946352946)
-cc = CompoundUnit((inch,inch,inch),(),"CC","CC",0.001)
+cc = CompoundUnit((inch,inch,inch),(),"CC","CC",1e-6)
 
 #Density
 kilogramPerCubicMeter = CompoundUnit((kilogram,),(meter,meter,meter),"kilogram/cubic meter","kg/m.m.m",1)
@@ -685,14 +688,18 @@ gramPerLiter = CompoundUnit((gram,),(meter,meter,meter),"gram/liter","g/l",1)
 newton = CompoundUnit((kilogram,meter),(sec,sec),"newton","N",1)
 dyne = CompoundUnit((kilogram,meter),(sec,sec),"dyne","dyn",1e-5)
 poundForce = CompoundUnit((pound,foot),(sec,sec),"pound force","lbf",4.4482216152605)
+kgf=kilogramForce = CompoundUnit((gram,meter),(sec,sec),"kilogram force","kgf",9.80665)
+gf=gramForce = CompoundUnit((gram,meter),(sec,sec),"gram force","gf",9.80665e-3)
 
 #Pressure
 pascal = CompoundUnit((kilogram,),(meter,sec,sec),"pascal","Pa",1)
 bar = CompoundUnit((kilogram,),(meter,sec,sec),"bar","bar",1e5)
 atm = CompoundUnit((kilogram,),(meter,sec,sec),"atmosphere","atm",101325)
 psi = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square inch","psi",6894.757293168)
+ksi = CompoundUnit((kilogram,),(meter,sec,sec),"kilopound/square inch","ksi",6894757.293168)
 mmHg = CompoundUnit((kilogram,),(meter,sec,sec),"millimeter of mercury","mmHg",133.322)
 torr = CompoundUnit((kilogram,),(meter,sec,sec),"torr","torr",133.322)
+psf = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square foot","psf",47.88026)
 
 #Energy
 joule = CompoundUnit((kilogram,meter,meter),(sec,sec),"joule","J",1)
@@ -700,6 +707,7 @@ eV = CompoundUnit((kilogram,meter,meter),(sec,sec),"electron volt","eV",1.602176
 kWh = CompoundUnit((kilogram,meter,meter),(sec,sec),"kilowatt hour","kWh",3600000)
 calorie = CompoundUnit((kilogram,meter,meter),(sec,sec),"calorie","cal",4.1868)
 btu = CompoundUnit((kilogram,meter,meter),(sec,sec),"British thermal unit","btu",1055.05585262)
+hartree = CompoundUnit((kilogram,meter,meter),(sec,sec),"hartree","Eh",4.3597447222060-18)
 
 #Energy Density
 joulePerKilogram = CompoundUnit((meter,meter),(sec,sec),"joule/kilogram","J/kg",1)
@@ -718,8 +726,16 @@ electron = CompoundUnit((amp,sec),(),"electron charge","e",1.602176634e-19)
 #Electric Potential
 volt = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp),"volt","V",1)
 
+#Resistance
+ohm = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp,amp),"ohm","ohm",1)
+
 #Electric Field
 voltPerMeter = CompoundUnit((kilogram,meter),(sec,sec,sec,amp),"volt/meter","V/m",1)
+au_Field = hartree / (electron * bohr)
+
+#Electric Dipole
+coulombMeter = CompoundUnit((amp,sec,meter),(),"coulomb meter","C.m",1)
+debye = CompoundUnit((amp,sec,meter),(),"debye","D",3.33564095198152e-29)
 
 #Chemical.14
 amu = CompoundUnit((kilogram,),(),"atomic mass unit","amu",1.66053906660e-27)
@@ -758,6 +774,7 @@ DefaultCompoundUnit = {
     CompoundDimension((CURRENT,TIME),()):coulomb,#Charge
     CompoundDimension((MASS,LENGTH,LENGTH),(TIME,TIME,TIME,CURRENT)):volt,#Electric Potential
     CompoundDimension((MASS,LENGTH),(TIME,TIME,TIME,CURRENT)):voltPerMeter,#Electric Field
+    CompoundDimension((CURRENT,TIME,LENGTH),()):coulombMeter,#Electric Dipole
     CompoundDimension((MASS,),(MOL,)):amu,#Chemical
     CompoundDimension((LENGTH,LENGTH),(TIME,)):sqmPs,#Mass Diffusivity
 }
