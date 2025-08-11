@@ -38,8 +38,9 @@ def percentile(x: list[number], p: number):
         float: pth percentile of list x
     """
     x.sort()
-    l = p*(len(x)+1)/100
-    return x[int(l) - 1]+(x[int(l)]-x[int(l)-1])*(l % 1)
+    l = p*(len(x)-1)/100
+    arr = x + [0]
+    return arr[int(l)]+(arr[int(l)+1]-arr[int(l)])*(l % 1)
 
 
 def freq(x: list[T]) -> dict[T, int]:
