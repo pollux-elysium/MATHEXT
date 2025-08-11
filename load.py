@@ -9,7 +9,7 @@ def _evalEnv(x:str,_env:dict|None)->str:
     else:
         return eval(x)
 
-def ldi(x: list[int]|None,i:int=0) ->list[int]: 
+def ldi(x: list[int]|None = None,i:int=0) ->list[int]: 
     """Load int into list
 
     Args:
@@ -32,7 +32,7 @@ def ldi(x: list[int]|None,i:int=0) ->list[int]:
             inp = input()
     return x
 
-def ldie(x: list[int]|None,i:int=0,_env:dict|None=None)->list[int]: 
+def ldie(x: list[int]|None = None,i:int=0,_env:dict|None=None)->list[int]: 
     """Load int into list and evaluate
 
     Args:
@@ -59,7 +59,7 @@ def ldie(x: list[int]|None,i:int=0,_env:dict|None=None)->list[int]:
     return x
 
 
-def ldf(x: list[float]|None,i:int=0)->list[float]:
+def ldf(x: list[float]|None = None,i:int=0)->list[float]:
     """Load float into list
 
     Args:
@@ -83,7 +83,7 @@ def ldf(x: list[float]|None,i:int=0)->list[float]:
             inp = input()
     return x
 
-def ldfe(x: list[float]|None,i:int=0,_env:dict|None=None)->list[float]:
+def ldfe(x: list[float]|None = None,i:int=0,_env:dict|None=None)->list[float]:
     """Load float into list and evaluate
 
     Args:
@@ -109,7 +109,7 @@ def ldfe(x: list[float]|None,i:int=0,_env:dict|None=None)->list[float]:
             inp = input()
     return x
 
-def ldc(x: list[char]|None,i:int=0)->list[char]:
+def ldc(x: list[char]|None = None,i:int=0)->list[char]:
     """Load char into list
 
     Args:
@@ -132,7 +132,7 @@ def ldc(x: list[char]|None,i:int=0)->list[char]:
     return x
 
 
-def ldw(x: list[str]|None,i:int=0)->list[str]:
+def ldw(x: list[str]|None = None,i:int=0)->list[str]:
     """Load word into list
 
     Args:
@@ -179,6 +179,13 @@ def lda3d(i: int, j: int, k: int)->np.ndarray:
         np.ndarray: 3d array"""
     return np.array([[list(map(float,i.split()))for i in input().split(";")]for k in range(i)])
 
+def ldaM()->np.ndarray:
+    """Load MATLAB formats into 2d array
+        
+    Returns:
+        np.ndarray: 2d array"""
+    return np.array([list(map(float,i.split())) for i in input().split(";")])
+
 
 def ldae(x: int, y: int,_env:dict|None=None)->np.ndarray:
     """Load evaluated csv(str) into 2d array
@@ -212,8 +219,24 @@ def parse(x:T, f:number=1) -> list[T]:
         return [x] # type: ignore
 
 def ltsvf(i:str)->list[list[float]]:
+    """Load tab separated values into 2d array as float
+
+    Args:
+        i (str): Input string
+
+    Returns:
+        list[list[float]]: 2d array
+    """
     return [[float(k) for k in j.split("\t")]for j in i.split("\n")]
 
 def ltsvi(i:str)->list[list[int]]:
+    """Load tab separated values into 2d array as int
+
+    Args:
+        i (str): Input string
+
+    Returns:
+        list[list[int]]: 2d array
+    """
     return [[int(k) for k in j.split("\t")]for j in i.split("\n")]
 
