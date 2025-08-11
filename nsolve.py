@@ -10,7 +10,7 @@ def invFuncSolve(func:Callable[[number],number],y:number,start:number=1,err:numb
         func (Callable[[number],number]): Function to solve for the inverse of
         y (number): Value to solve for
         start (number, optional): Initial guess. Defaults to 1.
-        err (number, optional): Error tolerance. Defaults to 1e-6.
+        err (number, optional): Error tolerance and step size. Defaults to 1e-6.
         debug (bool, optional): Print debug information. Defaults to False.
             
     Returns:
