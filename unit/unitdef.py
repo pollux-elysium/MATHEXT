@@ -34,6 +34,7 @@ inch = Unit("L","inch","in",0.0254)
 miles = Unit("L","miles","mi",1609.344)
 yard = Unit("L","yard","yd",0.9144)
 angstrom = Unit("L","angstrom","A",1e-10)
+bohr = Unit("L","bohr","bohr",5.291772108e-11)
 
 #MASS
 lbm = pound = Unit("M","pound","lbm",.45359237)
@@ -141,6 +142,7 @@ psi = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square inch","psi",6894.75
 ksi = CompoundUnit((kilogram,),(meter,sec,sec),"kilopound/square inch","ksi",6894757.293168)
 mmHg = CompoundUnit((kilogram,),(meter,sec,sec),"millimeter of mercury","mmHg",133.322)
 torr = CompoundUnit((kilogram,),(meter,sec,sec),"torr","torr",133.322)
+psf = CompoundUnit((kilogram,),(meter,sec,sec),"pound/square foot","psf",47.88026)
 
 #Energy
 joule = CompoundUnit((kilogram,meter,meter),(sec,sec),"joule","J",1)
@@ -148,6 +150,7 @@ eV = CompoundUnit((kilogram,meter,meter),(sec,sec),"electron volt","eV",1.602176
 kWh = CompoundUnit((kilogram,meter,meter),(sec,sec),"kilowatt hour","kWh",3600000)
 calorie = CompoundUnit((kilogram,meter,meter),(sec,sec),"calorie","cal",4.1868)
 btu = CompoundUnit((kilogram,meter,meter),(sec,sec),"British thermal unit","btu",1055.05585262)
+hartree = CompoundUnit((kilogram,meter,meter),(sec,sec),"hartree","Eh",4.3597447222060e-18)
 
 #Energy Density
 joulePerKilogram = CompoundUnit((meter,meter),(sec,sec),"joule/kilogram","J/kg",1)
@@ -171,6 +174,11 @@ ohm = CompoundUnit((kilogram,meter,meter),(sec,sec,sec,amp,amp),"ohm","ohm",1)
 
 #Electric Field
 voltPerMeter = CompoundUnit((kilogram,meter),(sec,sec,sec,amp),"volt/meter","V/m",1)
+au_Field = hartree / (electron * bohr)
+
+#Electric Dipole
+coulombMeter = CompoundUnit((amp,sec,meter),(),"coulomb meter","C.m",1)
+debye = CompoundUnit((amp,sec,meter),(),"debye","D",3.33564095198152e-30)
 
 #Chemical.14
 amu = CompoundUnit((kilogram,),(),"atomic mass unit","amu",1.66053906660e-27)
@@ -209,6 +217,7 @@ DefaultCompoundUnit = {
     CompoundDimension((CURRENT,TIME),()):coulomb,#Charge
     CompoundDimension((MASS,LENGTH,LENGTH),(TIME,TIME,TIME,CURRENT)):volt,#Electric Potential
     CompoundDimension((MASS,LENGTH),(TIME,TIME,TIME,CURRENT)):voltPerMeter,#Electric Field
+    CompoundDimension((CURRENT,TIME,LENGTH),()):coulombMeter,#Electric Dipole
     CompoundDimension((MASS,),(MOL,)):amu,#Chemical
     CompoundDimension((LENGTH,LENGTH),(TIME,)):sqmPs,#Mass Diffusivity
 }
