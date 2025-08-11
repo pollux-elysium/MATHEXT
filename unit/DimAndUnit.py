@@ -1,6 +1,9 @@
 import sys
 from typing import Generic, Literal, TypeAlias, Union, overload , ParamSpec
-from typing_extensions import TypeVarTuple,Unpack
+if sys.version_info >= (3, 10):
+    from typing import TypeVarTuple,Unpack
+else:
+    from typing_extensions import TypeVarTuple,Unpack
 from ..typedef import *
 from ..stats import freq
 
