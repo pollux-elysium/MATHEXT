@@ -165,6 +165,10 @@ class LinReg(Reg):
     @property
     def c(self) -> number:
         return self.solArray[1]
+    
+    @property
+    def eqn(self) -> str:
+        return f"y={self.m}x{self.c:+}"
 
     def f(self,x:number):
         """f(x) for the regression line.
