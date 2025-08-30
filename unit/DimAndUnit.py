@@ -1,6 +1,6 @@
 import sys
 from typing import Generic, Literal, TypeAlias, Union, overload , ParamSpec
-if sys.version_info >= (3, 10):
+if sys.version_info >= (3, 11):
     from typing import TypeVarTuple,Unpack
 else:
     from typing_extensions import TypeVarTuple,Unpack
