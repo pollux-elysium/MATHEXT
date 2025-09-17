@@ -7,7 +7,7 @@ from numpy import cross
 import numpy as np
 from itertools import accumulate as cum, combinations as com, permutations as per
 from statistics import mean, median as med, geometric_mean as gmean, harmonic_mean as hmean, stdev, pstdev, variance as var, pvariance as pvar
-from math import degrees as deg, radians as rad, sin, cos, tan, asin, acos, atan, hypot, atan2, sqrt, pi, isclose,log
+from math import degrees as deg, radians as rad, sin, cos, tan, asin, acos, atan, hypot, atan2, sqrt, pi, isclose,log,exp,log10,log2,factorial as fac
 from .load import ldi,ldie,lda,ldae,ldc,ldf,ldfe,lda3d,ltsvf,ltsvi,ldw,ldaM
 from .stats import *
 from .listelemop import *
