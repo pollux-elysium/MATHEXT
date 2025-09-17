@@ -121,6 +121,29 @@ def numIntTrap(func:Callable[[number],number],a:number,b:number,n:int) -> number
         s += func(a+i*h)
     return s*h
 
+def numIntSimp(func:Callable[[number],number],a:number,b:number,n:int) -> number:
+    """
+    Numerically integrate a function using Simpson's rule. If n is odd, the last interval is calculated using the trapezoidal rule.
+    Args:
+        func (Callable[[number],number]): Function to integrate
+        a (number): Lower bound
+        b (number): Upper bound
+        n (int): Number of intervals
+    Returns:
+        number: Approximate integral of func from a to b
+    """
+    if n%2==1:
+        return numIntSimp(func,a,b,n-1) + numIntTrap(func,a+(n-1)*(b-a)/n,b,1)
+    h = (b-a)/n
+    s = func(a)+func(b)
+    for i in range(1,n,2):
+        s += 4*func(a+i*h)
+    for i in range(2,n-1,2):
+        s += 2*func(a+i*h)
+    return s*h/3
+
+    
+
 def maximize(func:Callable[[number],number],a:number,b:number,err:number=1e-6,debug=False) -> number:
     """
     Find the maximum of a function using the golden section search.
@@ -457,3 +480,213 @@ def SODE1(fs: list[Callable[...,number]], iv: list[number], t0:number, t1:number
             cv[j] += h*fs[j](t,*cv)
         t += h
     return cv
+
+def SODE1A(fs: list[Callable[...,number]], iv: list[number], t0:number, t1:number, n:int)  -> tuple[list[number], list[list[number]]]:
+    """
+    Solve a system of first order ordinary differential equations using Euler's method.
+    Function input order is important.
+
+    [
+        dx/dt = f1(t,x,y,z,...)
+        dy/dt = f2(t,x,y,z,...)
+        dz/dt = f3(t,x,y,z,...)
+    ]
+
+    Args:
+        fs (list[Callable[...,number]]): List of functions representing the derivatives 
+        iv (list[number]): Initial values
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+
+    Returns:
+        list[list[number]]: Approximate values at t steps
+    """
+
+    h = (t1-t0)/n
+    t = t0
+    cv = iv.copy()
+    out = [cv]
+    outt = [t0]
+    nv = cv.copy()
+    for _ in range(n):
+        t += h
+        for j in range(len(cv)):
+            nv[j] += h*fs[j](t,*cv)
+        cv = nv.copy()
+        out.append(cv)
+        outt.append(t)
+    return outt,out
+
+def ODE1_Heun(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int) -> number:
+    """
+    Solve a first order ordinary differential equation using Heun's method.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+
+    Returns:
+        number: Approximate value of y at t1
+    """
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    for _ in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h,y+h*k1)
+        y += h*(k1+k2)/2
+        t += h
+    return y
+
+def ODE1A_Heun(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int) -> tuple[list[number],list[number]]:
+    """
+    Solve a first order ordinary differential equation using Heun's method.
+    Returns all steps, time.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+
+    Returns:
+        tuple[list[number],list[number]]: [time[], y[]]
+    """
+
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    outy = [0.]*(n+1)
+    outt = [0.]*(n+1)
+    outy[0] = y0
+    outt[0] = t0
+    for i in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h,y+h*k1)
+        y += h*(k1+k2)/2
+        t += h
+        outy[i+1] = y
+        outt[i+1] = t
+    return outt,outy
+
+def ODE1_Midpoint(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int) -> number:
+    """
+    Solve a first order ordinary differential equation using the Midpoint method.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+
+    Returns:
+        number: Approximate value of y at t1
+    """
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    for _ in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h/2,y+h*k1/2)
+        y += h*k2
+        t += h
+    return y
+
+def ODE1A_Midpoint(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int) -> tuple[list[number],list[number]]:
+    """
+    Solve a first order ordinary differential equation using the Midpoint method.
+    Returns all steps, time.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+
+    Returns:
+        tuple[list[number],list[number]]: [time[], y[]]
+    """
+
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    outy = [0.]*(n+1)
+    outt = [0.]*(n+1)
+    outy[0] = y0
+    outt[0] = t0
+    for i in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h/2,y+h*k1/2)
+        y += h*k2
+        t += h
+        outy[i+1] = y
+        outt[i+1] = t
+    return outt,outy
+
+def ODE1_RK2(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int,alpha:float) -> number:
+    """
+    Solve a first order ordinary differential equation using the RK2 method, Specify alpha.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+        alpha (float): Parameter for RK2 method (0<alpha<=1)
+    Returns:
+        number: Approximate value of y at t1
+    """
+
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    for _ in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h/alpha,y+h*k1/alpha)
+        y += h*((1-alpha)*k1 + alpha*k2)
+        t += h
+    return y
+
+def ODE1A_RK2(dydt : Callable[[number,number],number],y0:number,t0:number,t1:number,n:int,alpha:float=2/3) -> tuple[list[number],list[number]]:
+    """
+    Solve a first order ordinary differential equation using the RK2 method, Specify alpha.
+    Returns all steps, time.
+
+    Args:
+        dydt (Callable[[number,number],number]): Function (t,y) representing the derivative of y
+        y0 (number): Initial value of y
+        t0 (number): Initial value of t
+        t1 (number): Final value of t
+        n (int): Number of steps
+        alpha (float): Parameter for RK2 method (0<alpha<=1), Defaults to 2/3 (optimal,Ralston's method)
+
+    Returns:
+        tuple[list[number],list[number]]: [time[], y[]]
+    """
+
+    h = (t1-t0)/n
+    t = t0
+    y = y0
+    outy = [0.]*(n+1)
+    outt = [0.]*(n+1)
+    outy[0] = y0
+    outt[0] = t0
+    for i in range(n):
+        k1 = dydt(t,y)
+        k2 = dydt(t+h*alpha,y+h*k1*alpha)
+        y += h*((1-1/2/alpha)*k1 + k2/2/alpha)
+        t += h
+        outy[i+1] = y
+        outt[i+1] = t
+    return outt,outy
+
+
+    
