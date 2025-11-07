@@ -119,10 +119,10 @@ class Reg:
         Returns:
             number: The r^2 value.
         """
-        e=sub(self.fx,[self.f(i) for i in self.x])
-        SSres=sum(mul(e,e))
-        mean=sum(self.fx)/len(self.fx)
-        SStot=sum(mul(Stot:=sub(self.fx,[mean for i in self.fx]),Stot))
+        e=np.array(self.fx)-self.f(np.array(self.x))
+        SSres=np.sum(e*e)
+        mean=np.mean(self.fx)
+        SStot=np.sum((np.array(self.fx)-mean)**2)
         return 1-SSres/SStot
 
     @abstractmethod
@@ -359,7 +359,7 @@ class ExpReg(Reg):
         Returns:
             number: The f(x) value."""
 
-        return self.a*exp(self.b*x)
+        return self.a*np.exp(self.b*x)
 
     def xf(self,f:number):
         """x for the regression line.
