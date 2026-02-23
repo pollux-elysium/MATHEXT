@@ -1,6 +1,7 @@
 from .typedef import number
 from typing import Callable, Concatenate
 from sys import stderr
+import numpy as np
 
 def nd1(func:Callable[[number],number],x:number,delta:number=1e-6,debug:bool=False) -> number:
     """
@@ -688,5 +689,120 @@ def ODE1A_RK2(dydt : Callable[[number,number],number],y0:number,t0:number,t1:num
         outt[i+1] = t
     return outt,outy
 
+def rootFinder(f:Callable[[float],float],
+               lower:float = -10, 
+               upper:float = 10,
+               initial_sampling:int=10, 
+               tol:float=1e-6, 
+               max_iter:int=100,
+               max_search_expand:int=10,
+               debug:bool=False
+               ) -> float:
+    """Find the root using a combinations of midpoint and secant method. 
+
+    Args:
+        f (Callable[[float],float]): Function to find root for
+        lower (float, optional): Lower bound of the search interval. Defaults to 0.
+        upper (float, optional): Upper bound of the search interval. Defaults to 10.
+        initial_sampling (int, optional): Number of initial samples to find a bracketing interval. Defaults to 10.
+        tol (float, optional): Tolerance for convergence. Defaults to 1e-6.
+        max_iter (int, optional): Maximum number of iterations. Defaults to 100.
+    Returns:
+        float: The root of the function f(x).
+
+    The initial bound is a guideline for global search.
+    Invalid bounds without roots will be adjusted automatically.
+    Function with multiple roots will return the lowest root found from interval.
+    """
+
+    #Coarse Scan to find bracketing interval
+    #Flexible bound adjustment for dealing with unknown root locations
+
+    #Condition flags
+    search_expand_count = 0
+
+    while search_expand_count <= max_search_expand:
+        x_samples = np.linspace(lower, upper, initial_sampling)
+        # In case f is not numpy vectorized
+        f_samples = np.array([f(x) for x in x_samples])
+        sign_changes = np.where(np.diff(np.sign(f_samples)))[0]
+        # If no sign change found, expand the search interval
+        if len(sign_changes) == 0:
+            print("No sign changes found in the initial sampling. Adjusting bounds.")
+            lower -= initial_sampling*(upper - lower)*.5
+            upper += initial_sampling*(upper - lower)*.5
+            search_expand_count += 1
+        # If sign change found, set the bracketing interval for the first root found
+        else:
+            idx = sign_changes[0]
+            a = x_samples[idx]
+            b = x_samples[idx + 1]
+            f_a = f(a)
+            f_b = f(b)
+            break
+    # If no bracketing interval found after maximum adjustments, exit
+    else:
+        print("Failed to find a bracketing interval with a sign change after multiple adjustments.")
+        print("Please check the function or increase the search range.")
+        print(f"Search range: [{lower}, {upper}]")
+        raise ValueError("No bracketing interval found.")
+    if debug:
+        print(f"Bracketing interval found: [{a}, {b}] with f(a)={f_a:.4e}, f(b)={f_b:.4e}") #type: ignore
+
+    # Robust rootfinding method (Bisection + Secant hybrid)
+    for iteration in range(max_iter):
+        # Midpoint (Bisection)
+        mid = (a + b) / 2
+        f_mid = f(mid)
+        
+        if debug:
+            print(f"Iteration {iteration}: a = {a:.6f}, f(a) = {f_a:.4e}, b = {b:.6f}, f(b) = {f_b:.4e}")
+            print(f"  Midpoint mid = {mid:.6f}, f(mid) = {f_mid:.4e}")
+
+        # Secant Method
+        secant = b - f_b * (b - a) / (f_b - f_a)
+        f_secant = f(secant)
+
+        if debug:
+            print(f"  Secant secant = {secant:.6f}, f(secant) = {f_secant:.4e}")
+        #Choose new bound
+
+        if mid < secant:
+            sings = [np.sign(f_a), np.sign(f_mid), np.sign(f_secant), np.sign(f_b)]
+            sign_change = [sings[i] != sings[i+1] for i in range(len(sings)-1)]
+            if sign_change[0]:  # f(a) and f(mid)
+                b, f_b = mid, f_mid
+            elif sign_change[1]:  # f(mid) and f(secant)    
+                a, f_a = mid, f_mid
+                b, f_b = secant, f_secant
+            elif sign_change[2]:  # f(secant) and f(b)
+                a, f_a = secant, f_secant
+
+        elif secant < mid:
+            sings = [np.sign(f_a), np.sign(f_secant), np.sign(f_mid), np.sign(f_b)]
+            sign_change = [sings[i] != sings[i+1] for i in range(len(sings)-1)]
+            if sign_change[0]:  # f(a) and f(secant)
+                b, f_b = secant, f_secant
+            elif sign_change[1]:  # f(secant) and f(mid)    
+                a, f_a = secant, f_secant
+                b, f_b = mid, f_mid
+            elif sign_change[2]:  # f(mid) and f(b)
+                a, f_a = mid, f_mid
+                
+        else:
+            if debug:
+                print("No sign change detected among the evaluated points. Exiting.")
+            raise ValueError("Rootfinding failed due to lack of sign change.")
+        
+        # Check for convergence
+        if abs(f_secant) < tol:
+            if debug:
+                print(f"Converged to root at x = {secant:.6f} with f(x) = {f_secant:.4e} in {iteration} iterations.")
+            return secant
+        elif abs(f_mid) < tol:
+            if debug:
+                print(f"Converged to root at x = {mid:.6f} with f(x) = {f_mid:.4e} in {iteration} iterations.")
+            return mid
+    raise ValueError("Maximum iterations reached without convergence.")
 
     
